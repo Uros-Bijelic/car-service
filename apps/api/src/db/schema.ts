@@ -24,7 +24,8 @@ export const usersTable = pgTable('users', {
     email: varchar('email', { length: 255 }).notNull().unique(),
     phone: varchar('phone', { length: 255 }).notNull(),
     password: varchar('password', { length: 255 }).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull()
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
 export const carsTable = pgTable('cars', {
@@ -36,7 +37,9 @@ export const carsTable = pgTable('cars', {
         .notNull(),
     make: varchar('make', { length: 255 }).notNull(),
     model: varchar('model', { length: 255 }).notNull(),
-    year: integer().notNull()
+    year: integer().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
 export const appointmentsTable = pgTable('appointments', {
@@ -72,5 +75,6 @@ export const appointmentsServicesTable = pgTable('appointment_services', {
             onDelete: 'restrict'
         })
         .notNull(),
-    priceAtTime: numeric('price_at_time').notNull()
+    priceAtTime: numeric('price_at_time').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull()
 });
