@@ -1,4 +1,5 @@
 import { login, register } from '@controllers/auth-controller.js';
+import { insertUserSchema } from '@db/schema.js';
 import { validateBody } from '@middleware/validation.js';
 import { Router } from 'express';
 
@@ -19,6 +20,6 @@ const authRoutes: Router = Router();
 
 authRoutes.post('/login', login);
 
-authRoutes.post('/register', validateBody(registerSchema), register);
+authRoutes.post('/register', validateBody(insertUserSchema), register);
 
 export { authRoutes };

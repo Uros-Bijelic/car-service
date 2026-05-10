@@ -1,5 +1,4 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
-import { createPrivateKey } from 'crypto';
 
 export const generateJWTtoken = (payload: JwtPayload) => {
     const jwtSecret = process.env.JWT_SECRET!;

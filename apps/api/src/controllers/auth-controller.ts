@@ -1,13 +1,13 @@
 import { hashPassword } from '@utils/password.js';
 import type { Response, Request } from 'express';
 import { db } from '@db/db.js';
-import { users } from '@db/schema.js';
+import { users, type NewUser } from '@db/schema.js';
 import { DatabaseError } from 'pg';
 import { DrizzleQueryError } from 'drizzle-orm';
-import type { RegisterSchema } from '@routes/auth-routes.js';
+import { generateJWTtoken } from '@utils/jwt.js';
 
 export const register = async (
-    req: Request<unknown, unknown, RegisterSchema>,
+    req: Request<unknown, unknown, NewUser>,
     res: Response
 ) => {
     try {
@@ -27,12 +27,32 @@ export const register = async (
                 phone
             })
             .returning({
+                id: users.id,
                 username: users.username,
                 email: users.email,
                 firstName: users.firstName,
                 lastName: users.lastName,
                 phone: users.phone
             });
+
+        if (!user) {
+            return res.status(500).json({
+                error: 'Failed to create user'
+            });
+        }
+
+        const token = generateJWTtoken({
+            id: user.id,
+            email: user.email,
+            username: user.username
+        });
+
+        res.cookie('token', token, {
+            httpOnly: true, // Prevents JS access (XSS protection)
+            secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+            sameSite: 'strict', // Helps mitigate CSRF attacks
+            maxAge: 1000 * 60 * 60 // Cookie expiration (1 hour in ms)
+        });
 
         return res.status(201).json({
             message: 'User created',

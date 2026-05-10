@@ -9,6 +9,7 @@ import {
     varchar
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 export const appointmentStatusEnum = pgEnum('appointment_status', [
     'pending',
@@ -123,3 +124,14 @@ export const appointmentServiceRelations = relations(
         })
     })
 );
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Car = typeof cars.$inferSelect;
+export type Appointment = typeof appointments.$inferSelect;
+export type NewAppointment = typeof appointments.$inferInsert;
+export type Service = typeof services.$inferSelect;
+export type NewService = typeof services.$inferInsert;
+
+export const insertUserSchema = createInsertSchema(users);
+export const selectUserSchema = createSelectSchema(users);
