@@ -4,10 +4,14 @@ import { db } from '@db/db.js';
 import { users } from '@db/schema.js';
 import { DatabaseError } from 'pg';
 import { DrizzleQueryError } from 'drizzle-orm';
+import type { RegisterSchema } from '@routes/auth-routes.js';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (
+    req: Request<unknown, unknown, RegisterSchema>,
+    res: Response
+) => {
     try {
-        const { username, email, password, firstName, lastName, phone } =
+        const { email, password, username, firstName, lastName, phone } =
             req.body;
 
         const hashedPassword = await hashPassword(password);
