@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { authRoutes } from '@routes/auth-routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,6 +16,8 @@ app.get('/health', (_, res) => {
         message: 'API works'
     });
 });
+
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
