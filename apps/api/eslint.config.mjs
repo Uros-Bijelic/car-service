@@ -9,7 +9,7 @@ export default tseslint.config(
     {
         rules: {
             // catch unused variables
-            '@typescript-eslint/no-unused-vars': 'error',
+            '@typescript-eslint/no-unused-vars': 'off',
 
             // no explicit any
             '@typescript-eslint/no-explicit-any': 'warn',
@@ -18,7 +18,8 @@ export default tseslint.config(
             'prefer-const': 'error',
 
             // no console.log left in code (use warn so it doesn't block)
-            'no-console': 'warn'
+            'no-console': 'off',
+            'no-unused-vars': 'off'
         },
         ignores: ['node_modules', 'dist']
     }

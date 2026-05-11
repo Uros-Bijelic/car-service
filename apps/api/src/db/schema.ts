@@ -9,8 +9,16 @@ import {
     varchar
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
-export const appointmentStatusEnum = pgEnum('appointment_status', [
+export const appointmentStatus = pgEnum('appointment_status', [
+    'pending',
+    'in_progress',
+    'completed',
+    'cancelled'
+]);
+
+export const userRoles = pgEnum('appointment_status', [
     'pending',
     'in_progress',
     'completed',
@@ -23,7 +31,7 @@ export const users = pgTable('users', {
     firstName: varchar('first_name', { length: 50 }),
     lastName: varchar('last_name', { length: 50 }),
     email: varchar('email', { length: 255 }).notNull().unique(),
-    phone: varchar('phone', { length: 255 }).notNull(),
+    phone: varchar('phone', { length: 255 }),
     password: varchar('password', { length: 255 }).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -54,7 +62,7 @@ export const appointments = pgTable('appointments', {
         .notNull(),
     description: text('description').notNull(),
     scheduledAt: timestamp('scheduled_at').notNull(),
-    status: appointmentStatusEnum('status').default('pending').notNull(),
+    status: appointmentStatus('status').default('pending').notNull(),
     estimatedDurationMinutes: integer('estimated_duration_minutes'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -123,3 +131,14 @@ export const appointmentServiceRelations = relations(
         })
     })
 );
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Car = typeof cars.$inferSelect;
+export type Appointment = typeof appointments.$inferSelect;
+export type NewAppointment = typeof appointments.$inferInsert;
+export type Service = typeof services.$inferSelect;
+export type NewService = typeof services.$inferInsert;
+
+export const insertUserSchema = createInsertSchema(users);
+export const selectUserSchema = createSelectSchema(users);
