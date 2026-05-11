@@ -1,10 +1,11 @@
-import { hashPassword } from '@utils/password.js';
+import { comparePasswords, hashPassword } from '@utils/password.js';
 import type { Response, Request } from 'express';
 import { db } from '@db/db.js';
 import { users, type NewUser } from '@db/schema.js';
 import { DatabaseError } from 'pg';
-import { DrizzleQueryError } from 'drizzle-orm';
-import { generateJWTtoken } from '@utils/jwt.js';
+import { DrizzleQueryError, eq } from 'drizzle-orm';
+import { generateAccessJWTtoken, generateRefreshJWTtoken } from '@utils/jwt.js';
+import type { LoginSchema } from '@routes/auth-routes.js';
 
 export const register = async (
     req: Request<unknown, unknown, NewUser>,
@@ -41,22 +42,29 @@ export const register = async (
             });
         }
 
-        const token = generateJWTtoken({
+        const accessToken = generateAccessJWTtoken({
             id: user.id,
             email: user.email,
             username: user.username
         });
 
-        res.cookie('token', token, {
+        const refreshToken = generateRefreshJWTtoken({
+            id: user.id,
+            email: user.email,
+            username: user.username
+        });
+
+        res.cookie('refreshToken', refreshToken, {
             httpOnly: true, // Prevents JS access (XSS protection)
             secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
-            sameSite: 'strict', // Helps mitigate CSRF attacks
-            maxAge: 1000 * 60 * 60 // Cookie expiration (1 hour in ms)
+            sameSite: 'none', // Helps mitigate CSRF attacks
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days in ms
         });
 
         return res.status(201).json({
             message: 'User created',
-            user
+            user,
+            token: accessToken
         });
     } catch (e) {
         console.error('Error on register', e);
@@ -66,16 +74,9 @@ export const register = async (
         ) {
             const pgError = e.cause;
             if (pgError.code === '23505') {
-                if (pgError.constraint === 'users_username_unique') {
-                    return res.status(409).json({
-                        error: 'An account with provided username already exists.'
-                    });
-                }
-                if (pgError.constraint === 'users_email_unique') {
-                    return res.status(409).json({
-                        error: 'An account with provided email already exists.'
-                    });
-                }
+                return res.status(409).json({
+                    error: 'An account with these credentials already exists.'
+                });
             }
         }
 
@@ -85,11 +86,66 @@ export const register = async (
     }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+    req: Request<unknown, unknown, LoginSchema>,
+    res: Response
+) => {
     try {
-        // const { username, email, password } = req.body;
-        res.send('login');
+        const { email, password } = req.body;
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                error: 'Invalid credentials'
+            });
+        }
+
+        const isValidPassword = await comparePasswords(password, user.password);
+
+        if (!isValidPassword) {
+            return res.status(401).json({
+                error: 'Invalid credentials'
+            });
+        }
+
+        const accessToken = generateAccessJWTtoken({
+            id: user.id,
+            email: user.email,
+            username: user.username
+        });
+        const refreshToken = generateRefreshJWTtoken({
+            id: user.id,
+            email: user.email,
+            username: user.username
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true, // Prevents JS access (XSS protection)
+            secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+            sameSite: 'none', // Helps mitigate CSRF attacks
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days in ms
+        });
+
+        res.json({
+            message: 'Login success',
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                createdAt: user.createdAt
+            },
+            token: accessToken
+        });
     } catch (e) {
         console.error('Error on login', e);
+
+        res.status(500).json({
+            error: 'Failed to login'
+        });
     }
 };

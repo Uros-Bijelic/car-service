@@ -11,7 +11,14 @@ import {
 import { relations } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
-export const appointmentStatusEnum = pgEnum('appointment_status', [
+export const appointmentStatus = pgEnum('appointment_status', [
+    'pending',
+    'in_progress',
+    'completed',
+    'cancelled'
+]);
+
+export const userRoles = pgEnum('appointment_status', [
     'pending',
     'in_progress',
     'completed',
@@ -55,7 +62,7 @@ export const appointments = pgTable('appointments', {
         .notNull(),
     description: text('description').notNull(),
     scheduledAt: timestamp('scheduled_at').notNull(),
-    status: appointmentStatusEnum('status').default('pending').notNull(),
+    status: appointmentStatus('status').default('pending').notNull(),
     estimatedDurationMinutes: integer('estimated_duration_minutes'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull()

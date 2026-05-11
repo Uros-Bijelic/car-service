@@ -1,24 +1,19 @@
+import { Router } from 'express';
+import { z } from 'zod';
 import { login, register } from '@controllers/auth-controller.js';
 import { insertUserSchema } from '@db/schema.js';
 import { validateBody } from '@middleware/validation.js';
-import { Router } from 'express';
 
-import { z } from 'zod';
-
-export const registerSchema = z.object({
-    username: z.string().min(3, 'Username must be at least 3 characters long!'),
+export const loginSchema = z.object({
     email: z.email('Invalid Email!'),
-    password: z.string().min(8, 'Password must be at least 8 characters long!'),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    phone: z.string().optional()
+    password: z.string().min(6, 'Password must be at least 6 characters long!')
 });
 
-export type RegisterSchema = z.infer<typeof registerSchema>;
+export type LoginSchema = z.infer<typeof loginSchema>;
 
 const authRoutes: Router = Router();
 
-authRoutes.post('/login', login);
+authRoutes.post('/login', validateBody(loginSchema), login);
 
 authRoutes.post('/register', validateBody(insertUserSchema), register);
 
