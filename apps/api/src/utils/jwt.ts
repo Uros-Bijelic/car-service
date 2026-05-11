@@ -13,10 +13,12 @@ export const generateRefreshJWTtoken = (payload: JwtPayload) => {
 
 export const verifyAccessJWT = (token: string) => {
     const jwtSecret = process.env.JWT_ACCESS_SECRET!;
+
     return jwt.verify(token, jwtSecret);
 };
 
 export const verifyRefreshJWT = (token: string) => {
-    const jwtSecret = process.env.JWT_ACCESS_SECRET!;
+    const jwtSecret = process.env.JWT_REFRESH_SECRET!;
+
     return jwt.verify(token, jwtSecret);
 };

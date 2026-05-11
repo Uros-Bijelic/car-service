@@ -4,8 +4,13 @@ import { db } from '@db/db.js';
 import { users, type NewUser } from '@db/schema.js';
 import { DatabaseError } from 'pg';
 import { DrizzleQueryError, eq } from 'drizzle-orm';
-import { generateAccessJWTtoken, generateRefreshJWTtoken } from '@utils/jwt.js';
+import {
+    generateAccessJWTtoken,
+    generateRefreshJWTtoken,
+    verifyRefreshJWT
+} from '@utils/jwt.js';
 import type { LoginSchema } from '@routes/auth-routes.js';
+import type { JwtPayload } from 'jsonwebtoken';
 
 export const register = async (
     req: Request<unknown, unknown, NewUser>,
@@ -148,4 +153,49 @@ export const login = async (
             error: 'Failed to login'
         });
     }
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).json({
+                error: 'Unauthorized'
+            });
+        }
+
+        const payload = verifyRefreshJWT(refreshToken) as JwtPayload;
+
+        const accessToken = generateAccessJWTtoken({
+            id: payload.id,
+            email: payload.email,
+            username: payload.username
+        });
+
+        res.status(200).json({
+            token: accessToken
+        });
+    } catch (e) {
+        console.log('Invalid refresh token', e);
+        return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+};
+
+export const logout = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+        return res.status(401).json({
+            message: 'Already logged out'
+        });
+    }
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none'
+    });
+
+    return res.json({ message: 'Logged out' });
 };

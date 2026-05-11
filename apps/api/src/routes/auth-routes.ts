@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { login, register } from '@controllers/auth-controller.js';
+import {
+    login,
+    logout,
+    refreshToken,
+    register
+} from '@controllers/auth-controller.js';
 import { insertUserSchema } from '@db/schema.js';
 import { validateBody } from '@middleware/validation.js';
 
@@ -16,5 +21,9 @@ const authRoutes: Router = Router();
 authRoutes.post('/login', validateBody(loginSchema), login);
 
 authRoutes.post('/register', validateBody(insertUserSchema), register);
+
+authRoutes.get('/refresh-token', refreshToken);
+
+authRoutes.get('/logout', logout);
 
 export { authRoutes };
