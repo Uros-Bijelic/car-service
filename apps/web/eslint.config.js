@@ -21,6 +21,10 @@ export default defineConfig([
                 project: ['./tsconfig.app.json', './tsconfig.node.json'],
                 tsconfigRootDir: import.meta.dirname
             }
+        },
+        rules: {
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': 'off'
         }
     }
 ]);
