@@ -46,7 +46,8 @@
             "@middleware/*": ["./src/middleware/*"],
             "@routes/*": ["./src/routes/*"],
             "@utils/*": ["./src/utils/*"],
-            "@db/*": ["./src/db/*"]
+            "@db/*": ["./src/db/*"],
+            "@env/*": ["./env*"]
         }
     }
 }
