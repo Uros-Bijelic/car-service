@@ -7,6 +7,12 @@ export default tseslint.config(
     tseslint.configs.recommended,
     prettier,
     {
+        languageOptions: {
+            parserOptions: {
+                project: ['./tsconfig.json'],
+                tsconfigRootDir: import.meta.dirname
+            }
+        },
         rules: {
             // catch unused variables
             '@typescript-eslint/no-unused-vars': 'off',
