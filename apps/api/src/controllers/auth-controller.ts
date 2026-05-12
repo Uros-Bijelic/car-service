@@ -11,6 +11,7 @@ import {
 } from '@utils/jwt.js';
 import type { LoginSchema } from '@routes/auth-routes.js';
 import type { JwtPayload } from 'jsonwebtoken';
+import env from '@env/.js';
 
 export const register = async (
     req: Request<unknown, unknown, NewUser>,
@@ -61,7 +62,7 @@ export const register = async (
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true, // Prevents JS access (XSS protection)
-            secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+            secure: env.NODE_ENV === 'production', // Only sent over HTTPS in production
             sameSite: 'none', // Helps mitigate CSRF attacks
             maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days in ms
         });
@@ -129,7 +130,7 @@ export const login = async (
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true, // Prevents JS access (XSS protection)
-            secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+            secure: env.NODE_ENV === 'production', // Only sent over HTTPS in production
             sameSite: 'none', // Helps mitigate CSRF attacks
             maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days in ms
         });
@@ -193,7 +194,7 @@ export const logout = async (req: Request, res: Response) => {
 
     res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: env.NODE_ENV === 'production',
         sameSite: 'none'
     });
 
