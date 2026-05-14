@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod/v4';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
+import { useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 const registerSchema = z.object({
     username: z.string().min(3, 'Username must be at least 3 characters long'),
