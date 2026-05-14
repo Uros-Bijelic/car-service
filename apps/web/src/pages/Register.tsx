@@ -4,8 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod/v4';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
-import { useEffect } from 'react';
-import { apiFetch } from '@/lib/apiFetch';
+import { useRegister } from '@/features/auth/hooks/use-register';
 
 const registerSchema = z.object({
     username: z.string().min(3, 'Username must be at least 3 characters long'),
@@ -13,7 +12,7 @@ const registerSchema = z.object({
     password: z.string().min(6, 'Password must be at least 6 characters long!')
 });
 
-type RegisterSchema = z.infer<typeof registerSchema>;
+export type RegisterSchema = z.infer<typeof registerSchema>;
 
 export default function Register() {
     const methods = useForm<RegisterSchema>({
@@ -24,9 +23,10 @@ export default function Register() {
             password: ''
         }
     });
+    const { mutate: registerUser } = useRegister();
 
-    const onSubmit: SubmitHandler<RegisterSchema> = (data) => {
-        console.log('data', data);
+    const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
+        return registerUser(data);
     };
 
     return (

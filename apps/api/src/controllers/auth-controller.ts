@@ -39,7 +39,9 @@ export const register = async (
                 email: users.email,
                 firstName: users.firstName,
                 lastName: users.lastName,
-                phone: users.phone
+                phone: users.phone,
+                createdAt: users.createdAt,
+                updatedAt: users.updatedAt
             });
 
         if (!user) {

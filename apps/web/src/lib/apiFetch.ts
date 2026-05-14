@@ -3,7 +3,9 @@ export const apiFetch = async <T>(
     token?: string | null,
     options?: RequestInit
 ): Promise<T> => {
-    const response = await fetch(url, {
+    const BASE_URL = import.meta.env.VITE_BASE_API_URL;
+
+    const response = await fetch(BASE_URL + url, {
         credentials: 'include',
         ...options,
         headers: {
