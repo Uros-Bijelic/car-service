@@ -24,7 +24,9 @@ export default defineConfig([
         },
         rules: {
             'no-unused-vars': 'off',
-            '@typescript-eslint/no-unused-vars': 'off'
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-empty-object-type': 'warn',
+            'no-empty-pattern': 'off'
         }
     }
 ]);
