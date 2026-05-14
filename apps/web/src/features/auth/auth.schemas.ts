@@ -1,0 +1,21 @@
+import * as z from 'zod/v4';
+
+import type { User } from '@/features/user/types';
+
+export type RegisterResponse = {
+    user: User;
+    accessToken: string;
+};
+
+export type LoginResponse = {
+    user: User;
+    accessToken: string;
+};
+
+export const registerSchema = z.object({
+    username: z.string().min(3, 'Username must be at least 3 characters long'),
+    email: z.email('Invalid email!'),
+    password: z.string().min(6, 'Password must be at least 6 characters long!')
+});
+
+export type RegisterSchema = z.infer<typeof registerSchema>;

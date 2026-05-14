@@ -1,18 +1,13 @@
 import RHFInput from '@/components/RHFComponents/RHFInput';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod/v4';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
 import { useRegister } from '@/features/auth/hooks/use-register';
-
-const registerSchema = z.object({
-    username: z.string().min(3, 'Username must be at least 3 characters long'),
-    email: z.email('Invalid email!'),
-    password: z.string().min(6, 'Password must be at least 6 characters long!')
-});
-
-export type RegisterSchema = z.infer<typeof registerSchema>;
+import {
+    registerSchema,
+    type RegisterSchema
+} from '@/features/auth/auth.schemas';
 
 export default function Register() {
     const methods = useForm<RegisterSchema>({

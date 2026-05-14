@@ -1,8 +1,7 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useMutation } from '@tanstack/react-query';
-import { authApi } from './auth-api';
-import type { RegisterSchema } from '@/pages/Register';
-import type { RegisterResponse } from './types';
+import { authApi } from '../auth-api';
+import type { RegisterResponse, RegisterSchema } from '../auth.schemas';
 
 export const useRegister = () => {
     return useMutation({
