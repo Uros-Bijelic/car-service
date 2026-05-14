@@ -7,7 +7,7 @@ import { useRegisterUser } from '@/features/auth/hooks/use-register-user';
 import {
     registerSchema,
     type RegisterSchema
-} from '@/features/auth/auth.schemas';
+} from '@/features/auth/auth-schemas';
 
 export default function Register() {
     const methods = useForm<RegisterSchema>({

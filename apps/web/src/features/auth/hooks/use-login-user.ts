@@ -1,12 +1,12 @@
 import { apiFetch } from '@/lib/apiFetch';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../auth-api';
-import type { AuthResponse, RegisterSchema } from '../auth-schemas';
+import type { AuthResponse, LoginSchema } from '../auth-schemas';
 
-export const useRegisterUser = () => {
+export const useLoginUser = () => {
     return useMutation({
-        mutationFn: async (data: RegisterSchema) => {
-            return apiFetch<AuthResponse>(authApi.register, null, {
+        mutationFn: async (data: LoginSchema) => {
+            return apiFetch<AuthResponse>(authApi.login, null, {
                 method: 'POST',
                 body: JSON.stringify(data)
             });

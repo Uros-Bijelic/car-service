@@ -1,28 +1,23 @@
 import RHFInput from '@/components/RHFComponents/RHFInput';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod/v4';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
+import { loginSchema, type LoginSchema } from '@/features/auth/auth-schemas';
+import { useLoginUser } from '@/features/auth/hooks/use-login-user';
 
-const registerSchema = z.object({
-    email: z.email('Invalid email!'),
-    password: z.string().min(6, 'Password must be at least 6 characters long!')
-});
-
-type LoginSchema = z.infer<typeof registerSchema>;
-
-export default function Register() {
+export default function Login() {
     const methods = useForm<LoginSchema>({
-        resolver: zodResolver(registerSchema),
+        resolver: zodResolver(loginSchema),
         defaultValues: {
             email: '',
             password: ''
         }
     });
+    const { mutate: loginUser } = useLoginUser();
 
     const onSubmit: SubmitHandler<LoginSchema> = (data) => {
-        console.log('data', data);
+        return loginUser(data);
     };
 
     return (
@@ -46,7 +41,6 @@ export default function Register() {
                             placeholder="Password"
                             type="password"
                         />
-
                         <Link
                             to="/login"
                             className="type-link text-center w-full block"
@@ -54,7 +48,7 @@ export default function Register() {
                             Don't have an account? Register now.
                         </Link>
                         <div className="flex-center">
-                            <Button type="submit">Register</Button>
+                            <Button type="submit">Login</Button>
                         </div>
                     </form>
                 </FormProvider>
