@@ -2,12 +2,7 @@ import * as z from 'zod/v4';
 
 import type { User } from '@/features/user/types';
 
-export type RegisterResponse = {
-    user: User;
-    accessToken: string;
-};
-
-export type LoginResponse = {
+export type AuthResponse = {
     user: User;
     accessToken: string;
 };

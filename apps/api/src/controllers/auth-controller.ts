@@ -145,7 +145,8 @@ export const login = async (
                 username: user.username,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
             },
             token: accessToken
         });

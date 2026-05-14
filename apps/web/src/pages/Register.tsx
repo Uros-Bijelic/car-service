@@ -3,7 +3,7 @@ import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
-import { useRegister } from '@/features/auth/hooks/use-register';
+import { useRegisterUser } from '@/features/auth/hooks/use-register-user';
 import {
     registerSchema,
     type RegisterSchema
@@ -18,7 +18,7 @@ export default function Register() {
             password: ''
         }
     });
-    const { mutate: registerUser } = useRegister();
+    const { mutate: registerUser } = useRegisterUser();
 
     const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
         return registerUser(data);
