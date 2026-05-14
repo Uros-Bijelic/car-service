@@ -3,6 +3,7 @@ import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod/v4';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router';
 
 const registerSchema = z.object({
     username: z.string().min(3, 'Username must be at least 3 characters long'),
@@ -29,7 +30,7 @@ export default function Register() {
     return (
         <section className=" h-dvh flex-center">
             <div className="border border-blue-600 sm:w-sm max-w-2xl">
-                <h2 className="text-center mb-4">Register</h2>
+                <h2 className="type-h3 text-center mb-4">Register</h2>
                 <FormProvider {...methods}>
                     <form
                         onSubmit={methods.handleSubmit(onSubmit)}
@@ -52,6 +53,13 @@ export default function Register() {
                             placeholder="Password"
                             type="password"
                         />
+
+                        <Link
+                            to="/login"
+                            className="type-link text-center w-full block"
+                        >
+                            Have an account? Go to Login page.
+                        </Link>
                         <div className="flex-center">
                             <Button type="submit">Register</Button>
                         </div>

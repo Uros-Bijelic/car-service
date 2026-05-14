@@ -168,6 +168,42 @@
 }
 
 @layer utilities {
+    .type-h1 {
+        @apply font-heading text-4xl leading-tight tracking-tight font-extrabold md:text-5xl lg:text-6xl;
+    }
+
+    .type-h2 {
+        @apply font-heading text-3xl leading-tight tracking-tight font-bold md:text-4xl lg:text-5xl;
+    }
+
+    .type-h3 {
+        @apply font-heading text-2xl leading-snug tracking-tight font-semibold md:text-3xl lg:text-4xl;
+    }
+
+    .type-h4 {
+        @apply font-heading text-xl leading-snug font-semibold md:text-2xl lg:text-3xl;
+    }
+
+    .type-lead {
+        @apply text-base leading-7 text-muted-foreground md:text-lg md:leading-8 lg:text-xl lg:leading-9;
+    }
+
+    .type-body {
+        @apply text-sm leading-6 md:text-base md:leading-7;
+    }
+
+    .type-small {
+        @apply text-xs leading-5 md:text-sm md:leading-6;
+    }
+
+    .type-caption {
+        @apply text-xs leading-4 tracking-wide text-muted-foreground;
+    }
+
+    .type-link {
+        @apply text-sm font-medium underline-offset-4 transition-colors hover:underline md:text-base;
+    }
+
     .bg-gradient-brand {
         background-image: linear-gradient(
             135deg,
