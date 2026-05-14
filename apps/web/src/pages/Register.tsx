@@ -44,11 +44,13 @@ export default function Register() {
                             label="Email"
                             name="email"
                             placeholder="E-mail"
+                            type="email"
                         />
                         <RHFInput
                             label="Password"
                             name="password"
                             placeholder="Password"
+                            type="password"
                         />
                         <div className="flex-center">
                             <Button type="submit">Register</Button>

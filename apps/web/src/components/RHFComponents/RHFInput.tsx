@@ -4,11 +4,10 @@ import { Input } from '@/components/ui/input';
 
 type Props = {
     label: React.ReactNode;
-    placeholder: string;
     name: string;
-};
+} & React.ComponentProps<'input'>;
 
-export default function RHFInput({ label, placeholder, name }: Props) {
+export default function RHFInput({ label, name, ...rest }: Props) {
     const { control } = useFormContext();
 
     return (
@@ -21,8 +20,8 @@ export default function RHFInput({ label, placeholder, name }: Props) {
                     <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
-                        placeholder={placeholder}
                         autoComplete="off"
+                        {...rest}
                     />
                     {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
