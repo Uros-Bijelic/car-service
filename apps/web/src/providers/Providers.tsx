@@ -1,11 +1,11 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router/dom';
-import { router } from '../router/router';
 import { queryClient } from '@/lib/query-client';
-import AuthProvider from './AuthProvider';
 import { Toaster } from '@/components/ui/sonner';
+import AuthProvider from '@/features/auth/providers/AuthProvider';
+import { router } from '@/router/Router';
 
-export const AppProviders = () => {
+export default function AppProviders() {
     return (
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
@@ -14,4 +14,4 @@ export const AppProviders = () => {
             </AuthProvider>
         </QueryClientProvider>
     );
-};
+}
