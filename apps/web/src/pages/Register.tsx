@@ -21,17 +21,20 @@ export default function Register() {
     const { mutate: registerUser } = useRegisterUser();
 
     const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
-        return registerUser(data);
+        registerUser(data);
     };
 
     return (
-        <section className=" h-dvh flex-center">
-            <div className="border border-blue-600 sm:w-sm max-w-2xl">
-                <h2 className="type-h3 text-center mb-4">Register</h2>
+        <section className="h-dvh flex-center px-4">
+            <div className="w-full max-w-md rounded-2xl border border-border/70 bg-card/85 p-6 shadow-xl shadow-black/10 backdrop-blur-md dark:border-border dark:bg-card/75 dark:shadow-black/35 sm:p-8">
+                <h2 className="type-h3 mb-2 text-center">Register</h2>
+                <p className="type-small mb-6 text-center text-muted-foreground">
+                    Create your account to get started.
+                </p>
                 <FormProvider {...methods}>
                     <form
                         onSubmit={methods.handleSubmit(onSubmit)}
-                        className="space-y-3 p-4 w-full"
+                        className="w-full space-y-4"
                     >
                         <RHFInput
                             label="Username"
@@ -53,12 +56,14 @@ export default function Register() {
 
                         <Link
                             to="/login"
-                            className="type-link text-center w-full block"
+                            className="type-link block w-full text-center text-muted-foreground hover:text-foreground"
                         >
                             Have an account? Go to Login page.
                         </Link>
-                        <div className="flex-center">
-                            <Button type="submit">Register</Button>
+                        <div className="flex-center pt-1">
+                            <Button type="submit" className="w-full">
+                                Register
+                            </Button>
                         </div>
                     </form>
                 </FormProvider>
