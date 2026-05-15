@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import type { AuthResponse, RegisterSchema } from '../auth-schemas';
 import { authApi } from '../auth-api';
+import { queryClient } from '@/lib/query-client';
+import { authQueryKeys } from '../query-keys';
 
 export const useRegisterUser = () => {
     const navigate = useNavigate();
@@ -17,6 +19,7 @@ export const useRegisterUser = () => {
         },
         onSuccess: (data) => {
             setAccessToken(data.accessToken);
+            queryClient.setQueryData(authQueryKeys.refresh, data);
             toast.success('Account created successfully!');
             navigate('/');
         },
