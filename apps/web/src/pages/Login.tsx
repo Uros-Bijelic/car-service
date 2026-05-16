@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
 import { loginSchema, type LoginSchema } from '@/features/auth/auth-schemas';
 import { useLoginUser } from '@/features/auth/hooks/use-login-user';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function Login() {
     const methods = useForm<LoginSchema>({
@@ -14,7 +15,7 @@ export default function Login() {
             password: ''
         }
     });
-    const { mutate: loginUser } = useLoginUser();
+    const { mutate: loginUser, isPending } = useLoginUser();
 
     const onSubmit: SubmitHandler<LoginSchema> = (data) => {
         loginUser(data);
@@ -51,7 +52,17 @@ export default function Login() {
                             Don't have an account? Register now.
                         </Link>
                         <div className="flex-center pt-1">
-                            <Button type="submit" className="w-full">
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isPending}
+                            >
+                                {isPending && (
+                                    <LoadingSpinner
+                                        variant="button"
+                                        className="mr-2"
+                                    />
+                                )}
                                 Login
                             </Button>
                         </div>

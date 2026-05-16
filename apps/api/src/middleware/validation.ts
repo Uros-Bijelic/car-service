@@ -14,7 +14,7 @@ export const validateBody = (schema: ZodType) => {
                 }));
 
                 return res.status(400).json({
-                    error: 'Validation fails!',
+                    message: 'Validation fails!',
                     errorDetails
                 });
             }
@@ -36,7 +36,7 @@ export const validateParams = (schema: ZodType) => {
                 }));
 
                 return res.status(400).json({
-                    error: 'Invalid params!',
+                    message: 'Invalid params!',
                     errorDetails
                 });
             }
@@ -57,7 +57,7 @@ export const validateQuery = (schema: ZodType) => {
                 }));
 
                 return res.status(400).json({
-                    error: 'Invalid query params!',
+                    message: 'Invalid query params!',
                     errorDetails
                 });
             }

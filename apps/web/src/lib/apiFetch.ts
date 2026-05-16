@@ -27,38 +27,48 @@ const fetchWithAuth = async (
     });
 };
 
+const parseError = async (response: Response) => {
+    const error = await response
+        .json()
+        .catch(() => ({ message: 'Something went wrong!' }));
+    throw new Error(error.message);
+};
+
 export const apiFetch = async <T>(
     url: string,
     options?: RequestInit
 ): Promise<T> => {
     const response = await fetchWithAuth(url, options, accessToken);
 
-    if (response.status === 401) {
-        const data = await apiFetch<AuthResponse>(authApi.refresh, {
-            method: 'POST'
-        });
-
-        setAccessToken(data.accessToken);
-        queryClient.setQueryData(authQueryKeys.refresh, data);
-
-        const retried = await fetchWithAuth(url, options, data.accessToken);
-
-        if (!retried.ok) {
-            const error = await retried
-                .json()
-                .catch(() => ({ message: 'Something went wrong!' }));
-            throw new Error(error.message);
-        }
-
-        return retried.json();
+    if (response.ok) {
+        return response.json();
     }
 
-    if (!response.ok) {
-        const error = await response
-            .json()
-            .catch(() => ({ message: 'Something went wrong!' }));
-        throw new Error(error.message);
+    if (response.status !== 401 || url === authApi.refresh) {
+        await parseError(response);
     }
 
-    return response.json();
+    // Refresh ONCE via low-level fetch (no recursion).
+    const refreshResponse = await fetchWithAuth(authApi.refresh, {
+        method: 'POST'
+    });
+
+    if (!refreshResponse.ok) {
+        setAccessToken(null);
+        queryClient.setQueryData(authQueryKeys.refresh, null);
+        await parseError(refreshResponse);
+    }
+
+    const refreshData = (await refreshResponse.json()) as AuthResponse;
+    setAccessToken(refreshData.accessToken);
+    queryClient.setQueryData(authQueryKeys.refresh, refreshData);
+
+    // Retry original request once with new token.
+    const retried = await fetchWithAuth(url, options, refreshData.accessToken);
+
+    if (!retried.ok) {
+        await parseError(retried);
+    }
+
+    return retried.json();
 };

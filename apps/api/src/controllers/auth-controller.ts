@@ -46,7 +46,7 @@ export const register = async (
 
         if (!user) {
             return res.status(500).json({
-                error: 'Failed to create user'
+                message: 'Failed to create user'
             });
         }
 
@@ -72,7 +72,7 @@ export const register = async (
         return res.status(201).json({
             message: 'User created',
             user,
-            token: accessToken
+            accessToken
         });
     } catch (e) {
         console.error('Error on register', e);
@@ -83,13 +83,13 @@ export const register = async (
             const pgError = e.cause;
             if (pgError.code === '23505') {
                 return res.status(409).json({
-                    error: 'An account with these credentials already exists.'
+                    message: 'An account with these credentials already exists.'
                 });
             }
         }
 
         return res.status(500).json({
-            error: 'Failed to create a new user'
+            message: 'Failed to create a new user'
         });
     }
 };
@@ -107,7 +107,7 @@ export const login = async (
 
         if (!user) {
             return res.status(401).json({
-                error: 'Invalid credentials'
+                message: 'Invalid credentials'
             });
         }
 
@@ -115,7 +115,7 @@ export const login = async (
 
         if (!isValidPassword) {
             return res.status(401).json({
-                error: 'Invalid credentials'
+                message: 'Invalid credentials'
             });
         }
 
@@ -148,13 +148,13 @@ export const login = async (
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
             },
-            token: accessToken
+            accessToken
         });
     } catch (e) {
         console.error('Error on login', e);
 
         res.status(500).json({
-            error: 'Failed to login'
+            message: 'Failed to login'
         });
     }
 };
@@ -165,11 +165,15 @@ export const refreshToken = async (req: Request, res: Response) => {
 
         if (!refreshToken) {
             return res.status(401).json({
-                error: 'Unauthorized'
+                message: 'Unauthorized'
             });
         }
 
         const payload = verifyRefreshJWT(refreshToken) as JwtPayload;
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, payload.email)
+        });
 
         const accessToken = generateAccessJWTtoken({
             id: payload.id,
@@ -178,11 +182,12 @@ export const refreshToken = async (req: Request, res: Response) => {
         });
 
         res.status(200).json({
-            token: accessToken
+            user,
+            accessToken
         });
     } catch (e) {
         console.log('Invalid refresh token', e);
-        return res.status(401).json({ error: 'Invalid refresh token' });
+        return res.status(401).json({ message: 'Invalid refresh token' });
     }
 };
 

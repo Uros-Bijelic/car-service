@@ -8,6 +8,7 @@ import {
     registerSchema,
     type RegisterSchema
 } from '@/features/auth/auth-schemas';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function Register() {
     const methods = useForm<RegisterSchema>({
@@ -18,7 +19,7 @@ export default function Register() {
             password: ''
         }
     });
-    const { mutate: registerUser } = useRegisterUser();
+    const { mutate: registerUser, isPending } = useRegisterUser();
 
     const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
         registerUser(data);
@@ -61,7 +62,17 @@ export default function Register() {
                             Have an account? Go to Login page.
                         </Link>
                         <div className="flex-center pt-1">
-                            <Button type="submit" className="w-full">
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isPending}
+                            >
+                                {isPending && (
+                                    <LoadingSpinner
+                                        variant="button"
+                                        className="mr-2"
+                                    />
+                                )}
                                 Register
                             </Button>
                         </div>
