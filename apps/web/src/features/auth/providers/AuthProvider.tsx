@@ -1,6 +1,7 @@
 import { useRefetchToken } from '@/features/auth/hooks/use-refetch-token';
 import { setAccessToken } from '@/lib/apiFetch';
 import { AuthContext } from './auth-context';
+import { useEffect } from 'react';
 
 type Props = {
     children: React.ReactNode;
@@ -11,11 +12,9 @@ export default function AuthProvider({ children }: Props) {
 
     const user = data?.user ?? null;
 
-    if (data?.accessToken) {
-        setAccessToken(data.accessToken);
-    } else {
-        setAccessToken(null);
-    }
+    useEffect(() => {
+        setAccessToken(data?.accessToken ?? null);
+    }, [data?.accessToken]);
 
     return (
         <AuthContext.Provider value={{ user, isLoading }}>

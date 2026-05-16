@@ -20,7 +20,7 @@ export const useLoginUser = () => {
         onSuccess: (data) => {
             setAccessToken(data.accessToken);
             queryClient.setQueryData(authQueryKeys.refresh, data);
-            toast.success('Account created successfully!');
+            toast.success('You have logged in successfully');
             navigate('/');
         },
         onError: (error) => {

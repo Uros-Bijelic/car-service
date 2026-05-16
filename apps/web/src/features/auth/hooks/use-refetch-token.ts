@@ -14,10 +14,6 @@ export const useRefetchToken = () => {
         },
         staleTime: 13 * 60 * 1000, // 13 min
         refetchInterval: 13 * 60 * 1000, // proactively refresh every 13 min
-        retry: false,
-        enabled:
-            typeof window !== 'undefined' &&
-            window.location.pathname !== '/login' &&
-            window.location.pathname !== '/register'
+        retry: false
     });
 };
