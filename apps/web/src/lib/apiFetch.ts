@@ -28,10 +28,13 @@ const fetchWithAuth = async (
 };
 
 const parseError = async (response: Response) => {
-    const error = await response
+    const payload = await response
         .json()
         .catch(() => ({ message: 'Something went wrong!' }));
-    throw new Error(error.message);
+
+    throw new Error(
+        payload?.message ?? payload?.error ?? 'Something went wrong!'
+    );
 };
 
 export const apiFetch = async <T>(
@@ -56,6 +59,14 @@ export const apiFetch = async <T>(
     if (!refreshResponse.ok) {
         setAccessToken(null);
         queryClient.setQueryData(authQueryKeys.refresh, null);
+
+        // Avoid redirect loop on auth pages
+        const path = window.location.pathname;
+        const isAuthPage = path === '/login' || path === '/register';
+        if (!isAuthPage) {
+            window.location.assign('/login');
+        }
+
         await parseError(refreshResponse);
     }
 
