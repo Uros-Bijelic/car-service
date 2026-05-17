@@ -1,4 +1,5 @@
 {
+    "extends": "./tsconfig.paths.json",
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "target": "es2023",
@@ -19,20 +20,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
-        "noFallthroughCasesInSwitch": true,
-        "paths": {
-            "@app/*": ["./src/app/*"],
-            "@assets/*": ["./src/assets/*"],
-            "@components/*": ["./src/components/*"],
-            "@lib/*": ["./src/lib/*"],
-            "@features/*": ["./src/features/*"],
-            "@pages/*": ["./src/pages/*"],
-            "@utils/*": ["./src/utils/*"],
-            "@services/*": ["./src/services/*"],
-            "@store/*": ["./src/store/*"],
-            "@types/*": ["./src/types/*"],
-            "@env/*": ["./env*"]
-        }
+        "noFallthroughCasesInSwitch": true
     },
     "include": ["src"]
 }

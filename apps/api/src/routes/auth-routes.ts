@@ -22,8 +22,8 @@ authRoutes.post('/login', validateBody(loginSchema), login);
 
 authRoutes.post('/register', validateBody(insertUserSchema), register);
 
-authRoutes.get('/refresh-token', refreshToken);
+authRoutes.post('/refresh-token', refreshToken);
 
-authRoutes.get('/logout', logout);
+authRoutes.post('/logout', logout);
 
 export { authRoutes };

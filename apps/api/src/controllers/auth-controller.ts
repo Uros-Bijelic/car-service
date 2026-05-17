@@ -13,6 +13,15 @@ import type { LoginSchema } from '@routes/auth-routes.js';
 import type { JwtPayload } from 'jsonwebtoken';
 import env from '@env/.js';
 
+const isProd = env.NODE_ENV === 'production';
+
+const refreshCookieOptions = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? ('none' as const) : ('lax' as const),
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+};
+
 export const register = async (
     req: Request<unknown, unknown, NewUser>,
     res: Response
@@ -39,12 +48,14 @@ export const register = async (
                 email: users.email,
                 firstName: users.firstName,
                 lastName: users.lastName,
-                phone: users.phone
+                phone: users.phone,
+                createdAt: users.createdAt,
+                updatedAt: users.updatedAt
             });
 
         if (!user) {
             return res.status(500).json({
-                error: 'Failed to create user'
+                message: 'Failed to create user'
             });
         }
 
@@ -60,17 +71,11 @@ export const register = async (
             username: user.username
         });
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true, // Prevents JS access (XSS protection)
-            secure: env.NODE_ENV === 'production', // Only sent over HTTPS in production
-            sameSite: 'none', // Helps mitigate CSRF attacks
-            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days in ms
-        });
+        res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
         return res.status(201).json({
-            message: 'User created',
             user,
-            token: accessToken
+            accessToken
         });
     } catch (e) {
         console.error('Error on register', e);
@@ -81,13 +86,13 @@ export const register = async (
             const pgError = e.cause;
             if (pgError.code === '23505') {
                 return res.status(409).json({
-                    error: 'An account with these credentials already exists.'
+                    message: 'An account with these credentials already exists.'
                 });
             }
         }
 
         return res.status(500).json({
-            error: 'Failed to create a new user'
+            message: 'Failed to create a new user'
         });
     }
 };
@@ -105,7 +110,7 @@ export const login = async (
 
         if (!user) {
             return res.status(401).json({
-                error: 'Invalid credentials'
+                message: 'Invalid credentials'
             });
         }
 
@@ -113,7 +118,7 @@ export const login = async (
 
         if (!isValidPassword) {
             return res.status(401).json({
-                error: 'Invalid credentials'
+                message: 'Invalid credentials'
             });
         }
 
@@ -128,58 +133,80 @@ export const login = async (
             username: user.username
         });
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true, // Prevents JS access (XSS protection)
-            secure: env.NODE_ENV === 'production', // Only sent over HTTPS in production
-            sameSite: 'none', // Helps mitigate CSRF attacks
-            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days in ms
-        });
+        res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
         res.json({
-            message: 'Login success',
             user: {
                 id: user.id,
                 email: user.email,
                 username: user.username,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
             },
-            token: accessToken
+            accessToken
         });
     } catch (e) {
         console.error('Error on login', e);
 
         res.status(500).json({
-            error: 'Failed to login'
+            message: 'Failed to login'
         });
     }
 };
 
 export const refreshToken = async (req: Request, res: Response) => {
     try {
-        const refreshToken = req.cookies.refreshToken;
+        const incomingRefreshToken = req.cookies.refreshToken;
 
-        if (!refreshToken) {
+        if (!incomingRefreshToken) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const payload = verifyRefreshJWT(incomingRefreshToken) as JwtPayload;
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, payload.id),
+            columns: {
+                id: true,
+                email: true,
+                username: true,
+                firstName: true,
+                lastName: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true
+            }
+        });
+
+        if (!user) {
             return res.status(401).json({
-                error: 'Unauthorized'
+                message: 'Unauthorized'
             });
         }
 
-        const payload = verifyRefreshJWT(refreshToken) as JwtPayload;
-
         const accessToken = generateAccessJWTtoken({
-            id: payload.id,
-            email: payload.email,
-            username: payload.username
+            id: user.id,
+            email: user.email,
+            username: user.username
         });
 
+        const rotatedRefreshToken = generateRefreshJWTtoken({
+            id: user.id,
+            email: user.email,
+            username: user.username
+        });
+
+        res.cookie('refreshToken', rotatedRefreshToken, refreshCookieOptions);
+
         res.status(200).json({
-            token: accessToken
+            user,
+            accessToken
         });
     } catch (e) {
         console.log('Invalid refresh token', e);
-        return res.status(401).json({ error: 'Invalid refresh token' });
+        return res.status(401).json({ message: 'Invalid refresh token' });
     }
 };
 
@@ -194,8 +221,8 @@ export const logout = async (req: Request, res: Response) => {
 
     res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: 'none'
+        secure: isProd,
+        sameSite: isProd ? ('none' as const) : ('lax' as const)
     });
 
     return res.json({ message: 'Logged out' });
