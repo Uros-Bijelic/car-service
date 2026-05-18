@@ -1,9 +1,8 @@
 import { comparePasswords, hashPassword } from '@utils/password.js';
-import type { Response, Request } from 'express';
+import type { Response, Request, RequestHandler } from 'express';
 import { db } from '@db/db.js';
 import { users, type NewUser } from '@db/schema.js';
-import { DatabaseError } from 'pg';
-import { DrizzleQueryError, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
     generateAccessJWTtoken,
     generateRefreshJWTtoken,
@@ -12,6 +11,8 @@ import {
 import type { LoginSchema } from '@routes/auth-routes.js';
 import type { JwtPayload } from 'jsonwebtoken';
 import env from '@env/.js';
+import { asyncHandler } from '@middleware/async-handler.js';
+import { AppError, UnauthorizedError } from '../errors/AppError.js';
 
 const isProd = env.NODE_ENV === 'production';
 
@@ -22,11 +23,8 @@ const refreshCookieOptions = {
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
 };
 
-export const register = async (
-    req: Request<unknown, unknown, NewUser>,
-    res: Response
-) => {
-    try {
+export const register: RequestHandler = asyncHandler(
+    async (req: Request<unknown, unknown, NewUser>, res: Response) => {
         const { email, password, username, firstName, lastName, phone } =
             req.body;
 
@@ -54,9 +52,7 @@ export const register = async (
             });
 
         if (!user) {
-            return res.status(500).json({
-                message: 'Failed to create user'
-            });
+            throw new AppError('Failed to create user', 500);
         }
 
         const accessToken = generateAccessJWTtoken({
@@ -77,31 +73,11 @@ export const register = async (
             user,
             accessToken
         });
-    } catch (e) {
-        console.error('Error on register', e);
-        if (
-            e instanceof DrizzleQueryError &&
-            e.cause instanceof DatabaseError
-        ) {
-            const pgError = e.cause;
-            if (pgError.code === '23505') {
-                return res.status(409).json({
-                    message: 'An account with these credentials already exists.'
-                });
-            }
-        }
-
-        return res.status(500).json({
-            message: 'Failed to create a new user'
-        });
     }
-};
+);
 
-export const login = async (
-    req: Request<unknown, unknown, LoginSchema>,
-    res: Response
-) => {
-    try {
+export const login: RequestHandler = asyncHandler(
+    async (req: Request<unknown, unknown, LoginSchema>, res: Response) => {
         const { email, password } = req.body;
 
         const user = await db.query.users.findFirst({
@@ -117,9 +93,7 @@ export const login = async (
         const isValidPassword = await comparePasswords(password, user.password);
 
         if (!isValidPassword) {
-            return res.status(401).json({
-                message: 'Invalid credentials'
-            });
+            throw new UnauthorizedError();
         }
 
         const accessToken = generateAccessJWTtoken({
@@ -147,21 +121,15 @@ export const login = async (
             },
             accessToken
         });
-    } catch (e) {
-        console.error('Error on login', e);
-
-        res.status(500).json({
-            message: 'Failed to login'
-        });
     }
-};
+);
 
-export const refreshToken = async (req: Request, res: Response) => {
-    try {
+export const refreshToken: RequestHandler = asyncHandler(
+    async (req: Request, res: Response) => {
         const incomingRefreshToken = req.cookies.refreshToken;
 
         if (!incomingRefreshToken) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            throw new UnauthorizedError();
         }
 
         const payload = verifyRefreshJWT(incomingRefreshToken) as JwtPayload;
@@ -181,9 +149,7 @@ export const refreshToken = async (req: Request, res: Response) => {
         });
 
         if (!user) {
-            return res.status(401).json({
-                message: 'Unauthorized'
-            });
+            throw new UnauthorizedError();
         }
 
         const accessToken = generateAccessJWTtoken({
@@ -204,26 +170,23 @@ export const refreshToken = async (req: Request, res: Response) => {
             user,
             accessToken
         });
-    } catch (e) {
-        console.log('Invalid refresh token', e);
-        return res.status(401).json({ message: 'Invalid refresh token' });
     }
-};
+);
 
-export const logout = async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
+export const logout: RequestHandler = asyncHandler(
+    async (req: Request, res: Response) => {
+        const refreshToken = req.cookies.refreshToken;
 
-    if (!refreshToken) {
-        return res.status(401).json({
-            message: 'Already logged out'
+        if (!refreshToken) {
+            throw new UnauthorizedError('Not logged in');
+        }
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? ('none' as const) : ('lax' as const)
         });
+
+        return res.json({ message: 'Logged out' });
     }
-
-    res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: isProd,
-        sameSite: isProd ? ('none' as const) : ('lax' as const)
-    });
-
-    return res.json({ message: 'Logged out' });
-};
+);
