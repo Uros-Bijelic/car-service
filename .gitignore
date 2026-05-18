@@ -166,3 +166,6 @@ $RECYCLE.BIN/
 .directory
 .Trash-*
 .nfs*
+
+AUTH_FLOW_EXPLAINED.md
+AUTH_MERGE_REVIEW.md
