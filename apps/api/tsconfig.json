@@ -1,5 +1,6 @@
 {
     // Visit https://aka.ms/tsconfig to read more about this file
+    "include": ["src/**/*"],
     "compilerOptions": {
         // File Layout
         // "rootDir": "./src",
@@ -41,13 +42,15 @@
         "moduleDetection": "force",
         "skipLibCheck": true,
         "paths": {
-            "@controllers/*": ["./src/controllers/*"],
-            "@lib/*": ["./src/lib/*"],
-            "@middleware/*": ["./src/middleware/*"],
-            "@routes/*": ["./src/routes/*"],
-            "@utils/*": ["./src/utils/*"],
-            "@db/*": ["./src/db/*"],
-            "@env/*": ["./env*"]
-        }
+            "@/*": ["./src/*"],
+            // "@controllers/*": ["./src/controllers/*"],
+            // "@lib/*": ["./src/lib/*"],
+            // "@middleware/*": ["./src/middleware/*"],
+            // "@routes/*": ["./src/routes/*"],
+            // "@utils/*": ["./src/utils/*"],
+            // "@db/*": ["./src/db/*"],
+            "@/env*": ["./env*"]
+        },
+        "typeRoots": ["./src/types", "./node_modules/@types"]
     }
 }

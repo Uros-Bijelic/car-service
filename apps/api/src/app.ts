@@ -3,7 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { env } from '../env.js';
-import { authRoutes } from '@routes/auth-routes.js';
+import { authRoutes } from '@/routes/auth-routes.js';
+import { authenticateToken } from '@/middleware/auth.js';
+import { errorHandler } from './errors/error-handler.js';
 
 const app = express();
 const PORT = env.PORT || 8080;
@@ -26,6 +28,8 @@ app.get('/health', (_, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use(authenticateToken);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

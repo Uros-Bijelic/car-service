@@ -166,3 +166,7 @@ $RECYCLE.BIN/
 .directory
 .Trash-*
 .nfs*
+
+AUTH_FLOW_EXPLAINED.md
+AUTH_MERGE_REVIEW.md
+error-flow-auth-middleware-guide.md

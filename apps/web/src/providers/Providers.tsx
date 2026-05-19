@@ -10,7 +10,7 @@ export default function AppProviders() {
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <RouterProvider router={router} />
-                <Toaster richColors position="top-right" />
+                <Toaster richColors position="top-right" duration={3000} />
             </AuthProvider>
         </QueryClientProvider>
     );
