@@ -46,7 +46,7 @@ export default function Login() {
                             type="password"
                         />
                         <Link
-                            to="/login"
+                            to="/register"
                             className="type-link block w-full text-center text-muted-foreground hover:text-foreground"
                         >
                             Don't have an account? Register now.

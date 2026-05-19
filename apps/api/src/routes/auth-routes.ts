@@ -5,9 +5,9 @@ import {
     logout,
     refreshToken,
     register
-} from '@controllers/auth-controller.js';
-import { insertUserSchema } from '@db/schema.js';
-import { validateBody } from '@middleware/validation.js';
+} from '@/controllers/auth-controller.js';
+import { insertUserSchema } from '@/db/schema.js';
+import { validateBody } from '@/middleware/validation.js';
 
 export const loginSchema = z.object({
     email: z.email('Invalid Email!'),

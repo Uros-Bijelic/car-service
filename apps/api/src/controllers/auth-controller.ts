@@ -1,25 +1,25 @@
-import { comparePasswords, hashPassword } from '@utils/password.js';
-import type { Response, Request, RequestHandler } from 'express';
-import { db } from '@db/db.js';
-import { users, type NewUser } from '@db/schema.js';
+import { comparePasswords, hashPassword } from '@/utils/password.js';
+import type { Response, Request, RequestHandler, CookieOptions } from 'express';
+import { db } from '@/db/db.js';
+import { users, type NewUser } from '@/db/schema.js';
 import { eq } from 'drizzle-orm';
 import {
     generateAccessJWTtoken,
     generateRefreshJWTtoken,
     verifyRefreshJWT
-} from '@utils/jwt.js';
-import type { LoginSchema } from '@routes/auth-routes.js';
+} from '@/utils/jwt.js';
+import type { LoginSchema } from '@/routes/auth-routes.js';
 import type { JwtPayload } from 'jsonwebtoken';
-import env from '@env/.js';
-import { asyncHandler } from '@middleware/async-handler.js';
+import env from '@/env.js';
+import { asyncHandler } from '@/middleware/async-handler.js';
 import { AppError, UnauthorizedError } from '../errors/AppError.js';
 
 const isProd = env.NODE_ENV === 'production';
 
-const refreshCookieOptions = {
+const refreshCookieOptions: CookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? ('none' as const) : ('lax' as const),
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
 };
 
