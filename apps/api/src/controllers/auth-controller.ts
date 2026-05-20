@@ -10,7 +10,7 @@ import {
 } from '@/utils/jwt.js';
 import type { LoginSchema } from '@/routes/auth-routes.js';
 import type { JwtPayload } from 'jsonwebtoken';
-import env from '@/env.js';
+import { env } from '@/env.js';
 import { asyncHandler } from '@/middleware/async-handler.js';
 import { AppError, UnauthorizedError } from '../errors/AppError.js';
 

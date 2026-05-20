@@ -1,5 +1,4 @@
-import { User } from '@db/schema.ts';
-import type { AuthPayload } from '@utils/jwt.ts';
+import type { AuthPayload } from '@/utils/jwt.js';
 
 declare global {
     namespace Express {
@@ -8,3 +7,5 @@ declare global {
         }
     }
 }
+
+export {};

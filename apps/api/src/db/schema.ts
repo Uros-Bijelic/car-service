@@ -18,11 +18,10 @@ export const appointmentStatus = pgEnum('appointment_status', [
     'cancelled'
 ]);
 
-export const userRoles = pgEnum('appointment_status', [
-    'pending',
-    'in_progress',
-    'completed',
-    'cancelled'
+export const userRoles = pgEnum('user_roles', [
+    'admin',
+    'customer',
+    'mechanic'
 ]);
 
 export const users = pgTable('users', {
@@ -33,6 +32,7 @@ export const users = pgTable('users', {
     email: varchar('email', { length: 255 }).notNull().unique(),
     phone: varchar('phone', { length: 255 }),
     password: varchar('password', { length: 255 }).notNull(),
+    role: userRoles('role').default('customer').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
