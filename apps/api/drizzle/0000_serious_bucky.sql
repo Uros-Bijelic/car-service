@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";--> statement-breakpoint
 CREATE TYPE "public"."appointment_status" AS ENUM('pending', 'in_progress', 'completed', 'cancelled');--> statement-breakpoint
 CREATE TABLE "appointment_services" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,

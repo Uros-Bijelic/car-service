@@ -36,4 +36,3 @@ try {
 }
 
 export { env };
-export default env;
