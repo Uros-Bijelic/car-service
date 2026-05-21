@@ -47,7 +47,9 @@ export const apiFetch = async <T>(
         return response.json();
     }
 
-    if (response.status !== 401 || url === authApi.refresh) {
+    const isAuthMutation = url === authApi.login || url === authApi.register;
+
+    if (response.status !== 401 || url === authApi.refresh || isAuthMutation) {
         await parseError(response);
     }
 

@@ -1,5 +1,5 @@
 {
-    "extends": "./tsconfig.paths.json",
+    "extends": ["./tsconfig.paths.json", "../../packages/tsconfig.base.json"],
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "target": "es2023",

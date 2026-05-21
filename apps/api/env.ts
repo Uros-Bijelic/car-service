@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type jwt from 'jsonwebtoken';
 
 const envSchema = z.object({
     NODE_ENV: z
@@ -9,8 +10,14 @@ const envSchema = z.object({
     DATABASE_URL: z.string().startsWith('postgresql://'),
     JWT_ACCESS_SECRET: z.string().min(44, 'Must be 44 chars long'),
     JWT_REFRESH_SECRET: z.string().min(44, 'Must be 44 chars long'),
-    JWT_ACCESS_EXPIRY: z.string().default('15m'),
-    JWT_REFRESH_EXPIRY: z.string().default('7d'),
+    JWT_ACCESS_EXPIRY: z
+        .string()
+        .transform((s) => s as jwt.SignOptions['expiresIn'])
+        .default('15m'),
+    JWT_REFRESH_EXPIRY: z
+        .string()
+        .transform((s) => s as jwt.SignOptions['expiresIn'])
+        .default('7d'),
     SALT_ROUNDS: z.coerce.number().min(10).max(20).default(12)
 });
 
