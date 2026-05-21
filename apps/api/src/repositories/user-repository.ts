@@ -1,10 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@/db/db.js';
 import { users, type NewUser, type User } from '@/db/schema.js';
-import { hashPassword } from '@/utils/password.js';
 import { AppError } from '@/errors/AppError.js';
 
-export type SafeUser = Omit<User, 'password'>;
+export type NoPasswordUser = Omit<User, 'password'>;
 
 export class UserRepository {
     constructor(private database: typeof db) {}
@@ -17,15 +16,13 @@ export class UserRepository {
         lastName,
         phone,
         role
-    }: NewUser): Promise<SafeUser> {
-        const hashedPassword = await hashPassword(password);
-
+    }: NewUser): Promise<NoPasswordUser> {
         const [user] = await this.database
             .insert(users)
             .values({
                 username,
                 email,
-                password: hashedPassword,
+                password,
                 firstName,
                 lastName,
                 phone,
@@ -46,5 +43,53 @@ export class UserRepository {
         if (!user) throw new AppError('Failed to create user', 500);
 
         return user;
+    }
+
+    async findByEmail(email: string) {
+        return this.database.query.users.findFirst({
+            where: eq(users.email, email),
+            columns: {
+                id: true,
+                email: true,
+                username: true,
+                firstName: true,
+                lastName: true,
+                phone: true
+            }
+        });
+    }
+
+    async findById(id: string) {
+        return this.database.query.users.findFirst({
+            where: eq(users.id, id),
+            columns: {
+                id: true,
+                email: true,
+                username: true,
+                firstName: true,
+                lastName: true,
+                phone: true
+            }
+        });
+    }
+
+    async findByUsername(username: string) {
+        return this.database.query.users.findFirst({
+            where: eq(users.username, username),
+            columns: {
+                id: true,
+                email: true,
+                username: true,
+                firstName: true,
+                lastName: true,
+                phone: true
+            }
+        });
+    }
+
+    async findByEmailWithPassword(email: string) {
+        return this.database.query.users.findFirst({
+            where: eq(users.email, email)
+        });
     }
 }

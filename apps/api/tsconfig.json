@@ -1,14 +1,16 @@
 {
     // Visit https://aka.ms/tsconfig to read more about this file
     "include": ["src/**/*", "drizzle.config.ts"],
+    "extends": "../../packages/tsconfig.base.json",
     "compilerOptions": {
         // File Layout
-        // "rootDir": "./src",
-        // "outDir": "./dist",
+        "rootDir": "../..",
+        "outDir": "./dist",
 
         // Environment Settings
         // See also https://aka.ms/tsconfig/module
         "module": "nodenext",
+        "moduleResolution": "nodenext",
         "target": "esnext",
         "types": ["node"],
         // For nodejs:
@@ -43,13 +45,11 @@
         "skipLibCheck": true,
         "paths": {
             "@/*": ["./src/*"],
-            // "@controllers/*": ["./src/controllers/*"],
-            // "@lib/*": ["./src/lib/*"],
-            // "@middleware/*": ["./src/middleware/*"],
-            // "@routes/*": ["./src/routes/*"],
-            // "@utils/*": ["./src/utils/*"],
-            // "@db/*": ["./src/db/*"],
-            "@/env*": ["./env*"]
+            "@/env*": ["./env*"],
+            "@repo/types": ["../../packages/types/index.ts"],
+            "@repo/types/auth": ["../../packages/types/auth.ts"],
+            "@repo/types/*": ["../../packages/types/*"],
+            "@repo/shared/*": ["../../packages/shared/*"]
         },
         "typeRoots": ["./src/types", "./node_modules/@types"]
     }

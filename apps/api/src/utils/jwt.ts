@@ -7,25 +7,43 @@ export interface AuthPayload extends JwtPayload {
     username: string;
 }
 
-export const generateAccessJWTtoken = (payload: AuthPayload) => {
-    const jwtSecret = env.JWT_ACCESS_SECRET;
+const jwtAccessSecret = env.JWT_ACCESS_SECRET;
+const jwtAccessExpiry = env.JWT_ACCESS_EXPIRY;
+const jwtRefreshSecret = env.JWT_REFRESH_SECRET;
+const jwtRefreshExpiry = env.JWT_REFRESH_EXPIRY;
 
-    return jwt.sign(payload, jwtSecret, { expiresIn: '15mins' });
+export const generateAccessJWTtoken = ({
+    id,
+    email,
+    username
+}: AuthPayload) => {
+    return jwt.sign({ id, email, username }, jwtAccessSecret, {
+        expiresIn: jwtAccessExpiry
+    });
 };
-export const generateRefreshJWTtoken = (payload: AuthPayload) => {
-    const jwtSecret = env.JWT_REFRESH_SECRET;
 
-    return jwt.sign(payload, jwtSecret, { expiresIn: '7d' });
+export const generateRefreshJWTtoken = ({
+    id,
+    email,
+    username
+}: AuthPayload) => {
+    return jwt.sign({ id, email, username }, jwtRefreshSecret, {
+        expiresIn: jwtRefreshExpiry
+    });
 };
 
 export const verifyAccessJWT = (token: string): AuthPayload => {
-    const jwtSecret = env.JWT_ACCESS_SECRET;
-
-    return jwt.verify(token, jwtSecret) as AuthPayload;
+    return jwt.verify(token, jwtAccessSecret) as AuthPayload;
 };
 
 export const verifyRefreshJWT = (token: string): AuthPayload => {
-    const jwtSecret = env.JWT_REFRESH_SECRET;
+    return jwt.verify(token, jwtRefreshSecret) as AuthPayload;
+};
 
-    return jwt.verify(token, jwtSecret) as AuthPayload;
+export const safeVerifyRefreshJWT = (token: string): AuthPayload | null => {
+    try {
+        return verifyRefreshJWT(token);
+    } catch {
+        return null;
+    }
 };
