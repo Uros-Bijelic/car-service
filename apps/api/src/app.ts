@@ -6,6 +6,7 @@ import { env } from '../env.js';
 import { authRoutes } from '@/routes/auth-routes.js';
 import { authenticateToken } from '@/middleware/auth.js';
 import { errorHandler } from './errors/error-handler.js';
+import { authLimiter, generalLimiter } from './middleware/rate-limiter.js';
 
 const app = express();
 const PORT = env.PORT || 8080;
@@ -20,6 +21,10 @@ app.use(express.json());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use('/api', generalLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 app.get('/health', (_, res) => {
     res.json({
