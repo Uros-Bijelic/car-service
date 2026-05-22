@@ -18,7 +18,8 @@ const envSchema = z.object({
         .string()
         .transform((s) => s as jwt.SignOptions['expiresIn'])
         .default('7d'),
-    SALT_ROUNDS: z.coerce.number().min(10).max(20).default(12)
+    SALT_ROUNDS: z.coerce.number().min(10).max(20).default(12),
+    REDIS_URL: z.string().startsWith('rediss://')
 });
 
 export type ENV = z.infer<typeof envSchema>;
