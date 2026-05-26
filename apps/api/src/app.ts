@@ -7,6 +7,7 @@ import { authRoutes } from '@/routes/auth-routes.js';
 import { authenticateToken } from '@/middleware/auth.js';
 import { errorHandler } from './errors/error-handler.js';
 import { authLimiter, generalLimiter } from './middleware/rate-limiter.js';
+import type { Request, Response } from 'express';
 
 const app = express();
 const PORT = env.PORT || 8080;
@@ -34,6 +35,11 @@ app.get('/health', (_, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use(authenticateToken);
+
+app.use((_req: Request, res: Response) => {
+    res.status(404).json({ message: 'Route not found' });
+});
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
