@@ -1,6 +1,7 @@
 import type { NewUser } from '@/db/schema.js';
 import { env } from '@/env.js';
 import { ConflictError, UnauthorizedError } from '@/errors/AppError.js';
+import { REDIS_KEYS } from '@/lib/redis-keys.js';
 import { redis } from '@/lib/redis.js';
 import { UserRepository } from '@/repositories/user-repository.js';
 import {
@@ -115,9 +116,13 @@ export class AuthService {
 
         const refreshExpiry = parseTokenExpiryToSeconds(env.JWT_REFRESH_EXPIRY);
 
-        await redis.set(`blacklist:${hashToken(incomingRefreshToken)}`, '1', {
-            EX: refreshExpiry
-        });
+        await redis.set(
+            REDIS_KEYS.blacklist(hashToken(incomingRefreshToken)),
+            '1',
+            {
+                EX: refreshExpiry
+            }
+        );
 
         const newPayload = {
             id: user.id,
@@ -136,7 +141,7 @@ export class AuthService {
     }
 
     async isBlacklisted(token: string) {
-        const result = await redis.get(`blacklist:${token}`);
+        const result = await redis.get(REDIS_KEYS.blacklist(hashToken(token)));
         return result !== null;
     }
 
@@ -149,11 +154,15 @@ export class AuthService {
         const accessExpiry = parseTokenExpiryToSeconds(env.JWT_ACCESS_EXPIRY);
 
         await Promise.all([
-            redis.set(`blacklist:${hashToken(incomingRefreshToken)}`, '1', {
-                EX: refreshExpiry
-            }),
+            redis.set(
+                REDIS_KEYS.blacklist(hashToken(incomingRefreshToken)),
+                '1',
+                {
+                    EX: refreshExpiry
+                }
+            ),
             accessToken
-                ? redis.set(`blacklist:${hashToken(accessToken)}`, '1', {
+                ? redis.set(REDIS_KEYS.blacklist(hashToken(accessToken)), '1', {
                       EX: accessExpiry
                   })
                 : Promise.resolve()

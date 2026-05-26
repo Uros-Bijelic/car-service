@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { authController } from '@/di.js';
 import { validateBody } from '@/middleware/validation.js';
 import { loginSchema, registerSchema } from '@repo/types/auth';
-import { authenticateToken } from '@/middleware/auth.js';
 
 const authRoutes: Router = Router();
 
