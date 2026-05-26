@@ -1,9 +1,13 @@
 import type { NewUser } from '@/db/schema.js';
+import { env } from '@/env.js';
 import { ConflictError, UnauthorizedError } from '@/errors/AppError.js';
+import { redis } from '@/lib/redis.js';
 import { UserRepository } from '@/repositories/user-repository.js';
 import {
     generateAccessJWTtoken,
     generateRefreshJWTtoken,
+    hashToken,
+    parseTokenExpiryToSeconds,
     safeVerifyRefreshJWT
 } from '@/utils/jwt.js';
 import { comparePasswords, hashPassword } from '@/utils/password.js';
@@ -91,6 +95,12 @@ export class AuthService {
             throw new UnauthorizedError('Refresh token is missing');
         }
 
+        const isRefreshBlacklisted =
+            await this.isBlacklisted(incomingRefreshToken);
+        if (isRefreshBlacklisted) {
+            throw new UnauthorizedError('Refresh token has been invalidated');
+        }
+
         const payload = safeVerifyRefreshJWT(incomingRefreshToken);
 
         if (!payload) {
@@ -102,6 +112,12 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedError('User not found');
         }
+
+        const refreshExpiry = parseTokenExpiryToSeconds(env.JWT_REFRESH_EXPIRY);
+
+        await redis.set(`blacklist:${hashToken(incomingRefreshToken)}`, '1', {
+            EX: refreshExpiry
+        });
 
         const newPayload = {
             id: user.id,
@@ -119,9 +135,28 @@ export class AuthService {
         };
     }
 
-    async logout(incomingRefreshToken: string) {
+    async isBlacklisted(token: string) {
+        const result = await redis.get(`blacklist:${token}`);
+        return result !== null;
+    }
+
+    async logout(incomingRefreshToken: string, accessToken: string | null) {
         if (!incomingRefreshToken) {
             throw new UnauthorizedError('Not logged in');
         }
+
+        const refreshExpiry = parseTokenExpiryToSeconds(env.JWT_REFRESH_EXPIRY);
+        const accessExpiry = parseTokenExpiryToSeconds(env.JWT_ACCESS_EXPIRY);
+
+        await Promise.all([
+            redis.set(`blacklist:${hashToken(incomingRefreshToken)}`, '1', {
+                EX: refreshExpiry
+            }),
+            accessToken
+                ? redis.set(`blacklist:${hashToken(accessToken)}`, '1', {
+                      EX: accessExpiry
+                  })
+                : Promise.resolve()
+        ]);
     }
 }
