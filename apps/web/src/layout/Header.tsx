@@ -12,11 +12,14 @@ import {
     DropdownMenuPortal,
     DropdownMenuSubContent
 } from '@/components/ui/dropdown-menu';
+import { Link } from 'react-router';
 
 export default function Header() {
     return (
         <div className="flex justify-between border-4 border-red-500 p-6">
-            <div>LEFT</div>
+            <div>
+                <Link to="/">Car Service</Link>
+            </div>
             <div>
                 <DropdownMenu>
                     <DropdownMenuTrigger />
