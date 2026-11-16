@@ -13,7 +13,6 @@ export default function AppProviders() {
             defaultTheme="system"
             enableSystem
             storageKey="car-service-theme"
-            disableTransitionOnChange
         >
             <QueryClientProvider client={queryClient}>
                 <AuthProvider>
