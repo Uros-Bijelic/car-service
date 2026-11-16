@@ -9,7 +9,7 @@ type SwitchWithProps = React.ComponentProps<typeof SwitchPrimitive.Root> & {
 };
 
 const iconClassName =
-    'pointer-events-none absolute z-10 transition-colors top-1/2 flex -translate-y-1/2 **:text-inherit! [&_svg]:size-3! group-data-[size=lg]/switch:[&_svg]:size-4!';
+    'pointer-events-none absolute z-10 transition-colors top-1/2 flex -translate-y-1/2 [&_svg]:size-3! group-data-[size=lg]/switch:[&_svg]:size-4!';
 
 export default function SwitchWithIcons({
     className,
@@ -33,7 +33,7 @@ export default function SwitchWithIcons({
                     aria-hidden
                     className={cn(
                         iconClassName,
-                        'left-0.5 group-data-[size=lg]/switch:left-1 group-data-checked/switch:text-primary-foreground/70! group-data-unchecked/switch:text-primary! dark:group-data-unchecked/switch:text-background!'
+                        'left-0.5 group-data-[size=lg]/switch:left-1 group-data-checked/switch:text-primary-foreground/70!group-data-unchecked/switch:text-primary dark:group-data-unchecked/switch:text-background'
                     )}
                 >
                     {startIcon}
@@ -44,7 +44,7 @@ export default function SwitchWithIcons({
                     aria-hidden
                     className={cn(
                         iconClassName,
-                        'right-0.5 group-data-[size=lg]/switch:right-1 group-data-checked/switch:text-primary! group-data-unchecked/switch:text-muted-foreground!'
+                        'right-0.5 group-data-[size=lg]/switch:right-1 group-data-checked/switch:text-primary group-data-unchecked/switch:text-muted-foreground'
                     )}
                 >
                     {endIcon}
@@ -52,8 +52,7 @@ export default function SwitchWithIcons({
             )}
             <SwitchPrimitive.Thumb
                 data-slot="switch-thumb"
-                className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:data-unchecked:bg-foreground relative group-data-[size=lg]/switch:size-6 group-data-[size=lg]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=lg]/switch:data-unchecked:translate-x-0
-    "
+                className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:data-unchecked:bg-foreground relative group-data-[size=lg]/switch:size-6 group-data-[size=lg]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=lg]/switch:data-unchecked:translate-x-0"
             />
         </SwitchPrimitive.Root>
     );

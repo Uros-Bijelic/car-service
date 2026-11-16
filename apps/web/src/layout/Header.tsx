@@ -14,7 +14,7 @@ export default function Header() {
                 </Link>
                 <div className="flex items-center gap-3">
                     <ThemeToggle />
-                    {user && <UserMenu />}
+                    {user && <UserMenu user={user} />}
                 </div>
             </div>
         </header>
