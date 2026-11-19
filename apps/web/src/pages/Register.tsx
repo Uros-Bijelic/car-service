@@ -7,8 +7,9 @@ import { useRegisterUser } from '@/features/auth/hooks/use-register-user';
 import {
     registerSchema,
     type RegisterSchema
-} from '@repo/types/auth';
+} from '@packages/types/auth';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+
 
 export default function Register() {
     const methods = useForm<RegisterSchema>({

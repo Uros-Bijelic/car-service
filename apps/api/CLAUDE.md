@@ -32,7 +32,7 @@ Express 5 + Drizzle ORM (Postgres) + Redis, TypeScript run via `tsx`. Package na
 3. Controller handlers are arrow-function properties wrapped in `asyncHandler`.
 4. Register instances in `di.ts`, create the router in `routes/`.
 5. Mount the router in `app.ts` **after** `authenticateToken` and **before** the 404 handler, unless it must be public (only `/api/auth/*` is).
-6. Validate input with `validateBody` / `validateParams`; put schemas in `@repo/types` if the web app needs them too.
+6. Validate input with `validateBody` / `validateParams`; put schemas in `@packages/types` if the web app needs them too.
 7. Throw `AppError` subclasses; never send error responses by hand. The error handler also maps Postgres codes from `DrizzleQueryError`.
 
 ## Conventions and gotchas

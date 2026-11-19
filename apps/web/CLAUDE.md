@@ -1,6 +1,6 @@
 # CLAUDE.md — apps/web
 
-React 19 + Vite + TanStack Query + React Router 7 + Tailwind v4 + shadcn/ui. Package name: `frontend`. See the root `CLAUDE.md` for monorepo-wide rules (pnpm, style, shared `@repo/types`).
+React 19 + Vite + TanStack Query + React Router 7 + Tailwind v4 + shadcn/ui. Package name: `frontend`. See the root `CLAUDE.md` for monorepo-wide rules (pnpm, style, shared `@packages/types`).
 
 ## Commands
 
@@ -27,6 +27,6 @@ Needs `VITE_BASE_API_URL` in `.env`; `apiFetch` prefixes it to every URL. No tes
 - `@/` aliases `src/` (via `vite-tsconfig-paths`). React Compiler is on (Babel in `vite.config.ts`), so don't hand-write `useMemo`/`useCallback`/`memo` for perf.
 - All HTTP goes through `lib/apiFetch.ts`. The access token is a module-level variable (never localStorage/sessionStorage). On 401 it refreshes once via `/auth/refresh-token`, updates the `authQueryKeys.refresh` cache and retries; on failure it clears auth and redirects to `/login`. Errors are thrown as `Error(message)` from the API's `message` field.
 - Current user = the `authQueryKeys.refresh` query cache entry. Login/register/logout mutations update it and call `setAccessToken`.
-- Forms: react-hook-form + `zodResolver`, reusing schemas from `@repo/types` (e.g. `@repo/types/auth`) where the API shares them.
+- Forms: react-hook-form + `zodResolver`, reusing schemas from `@packages/types` (e.g. `@packages/types/auth`) where the API shares them.
 - Styling: Tailwind v4 utilities, `cn()` for class merging, light/dark theme through `next-themes`. Prefer shadcn components over hand-rolled ones.
 - Add a new feature by creating `features/<name>/` following `features/auth/`, then wire the page in `router/Router.tsx` under `ProtectedRoute` or `PublicRoute`.

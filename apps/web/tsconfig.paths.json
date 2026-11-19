@@ -1,9 +1,7 @@
 {
     "compilerOptions": {
         "paths": {
-            "@/*": ["./src/*"],
-            "@repo/types/*": ["../../packages/types/*"],
-            "@repo/shared/*": ["../../packages/shared/*"]
+            "@/*": ["./src/*"]
         }
     }
 }
