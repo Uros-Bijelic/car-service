@@ -21,8 +21,9 @@ export default function UserMenu({ user }: Props) {
 
     const fullName =
         [user.firstName, user.lastName]
-            .filter((name) => Boolean(name))
-            .join(' ') || '';
+            .map((name) => name?.trim())
+            .filter(Boolean)
+            .join(' ') || user.username;
 
     return (
         <DropdownMenu>
@@ -37,8 +38,8 @@ export default function UserMenu({ user }: Props) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                {fullName && <DropdownMenuLabel>{fullName}</DropdownMenuLabel>}
-                {fullName && <DropdownMenuSeparator />}
+                <DropdownMenuLabel>{fullName}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem
                         disabled={isPending}
