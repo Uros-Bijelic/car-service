@@ -19,6 +19,11 @@ type Props = {
 export default function UserMenu({ user }: Props) {
     const { mutate: logoutUser, isPending } = useLogoutUser();
 
+    const fullName =
+        [user.firstName, user.lastName]
+            .filter((name) => Boolean(name))
+            .join(' ') || '';
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -32,17 +37,8 @@ export default function UserMenu({ user }: Props) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuLabel></DropdownMenuLabel>
-                <DropdownMenuGroup>
-                    {user.firstName ||
-                        (user.lastName && (
-                            <DropdownMenuItem>
-                                {user.firstName ? user.firstName : null}{' '}
-                                {user.lastName ? user.lastName : null}
-                            </DropdownMenuItem>
-                        ))}
-                </DropdownMenuGroup>
-                {(user.firstName || user.lastName) && <DropdownMenuSeparator />}
+                {fullName && <DropdownMenuLabel>{fullName}</DropdownMenuLabel>}
+                {fullName && <DropdownMenuSeparator />}
                 <DropdownMenuGroup>
                     <DropdownMenuItem
                         disabled={isPending}
