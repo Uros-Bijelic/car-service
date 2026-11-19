@@ -522,3 +522,101 @@ Options:
 - [ ] Optional: user icon and name in `UserMenu`, and disable Profile until it has a page.
 
 Then run `pnpm build` and `pnpm lint`, and repeat the browser checks in section 7.
+
+---
+
+## Review round 1
+
+Reviewed 2026-11-16 at HEAD `9122465` (worktree clean), after the four commits since section 8: `d1b1004`, `278a857`, `85ec703`, `9122465`. This is static analysis plus a look at the compiled CSS. The browser checks from section 7 were not run.
+
+`pnpm build` passes. `pnpm lint` reports 0 errors and 0 warnings; the empty-`Props` warning from 8.4 is gone.
+
+### Decision: no header or theme switch on `/login` and `/register`
+
+This replaces item 3.5. The header, and with it `ThemeToggle`, must **not** appear on the auth pages. The current code already does this: `Header` is only used by `AppLayout`, and `AppLayout` only sits under `ProtectedRoute` in `Router.tsx`. Logged-out visitors still get the saved or system theme through `ThemeProvider` and the `index.html` script. They just can't change it there.
+
+So every line in this doc and in `header-theme-switcher.md` that says "move `AppLayout` above both guards" (3.5, steps 5 and 8, 8.6 and the checklists) is **obsolete**. The `h-dvh` to `flex-1` advice is obsolete too: nothing styles `#root`, so `flex-1` would do nothing.
+
+### Status of earlier items
+
+| Item | Status | Evidence |
+|---|---|---|
+| 2.1 unused imports, build passes | ✅ Done | `Header.tsx:1-4`; build passes |
+| 2.2 toggle label | ✅ Done | `ThemeToggle.tsx:15` `aria-label="Dark mode"` on a real Radix switch |
+| 2.3 anti-flash script | ✅ Done | `index.html:8-22`, key matches `Providers.tsx:15` |
+| 3.1 one `cn` helper | ✅ Done | `ui/switch.tsx` deleted, no `cn` package, `SwitchWithIcons.tsx:3` uses `@/lib/utils` |
+| 3.2 commented-out code and imports | ✅ Done | None left; `features/theme` deletion committed in `d1b1004` |
+| 3.3 menu button name and `align="end"` | ✅ Done | `UserMenu.tsx:26-27`, `:33` |
+| 3.4 header and layout debug styles | ✅ Done | `Header.tsx:10-11`, `AppLayout.tsx:6,8` |
+| 3.5 header on auth pages | ❌ Not done, now rejected | By design, see the decision above |
+| 4.1 / 8.3 split switch from theme logic | ✅ Done | `ThemeToggle.tsx` owns `useTheme`; the generic part is `SwitchWithIcons.tsx` |
+| 4.2 "System" option | ❌ Not done | Optional; `ThemeToggle.tsx:14` always stores light or dark |
+| 4.3 Logout details | 🟡 Partial | `onSelect` done (`UserMenu.tsx:47`); `Home.tsx:2,5,11-13` still has its own Logout button |
+| 4.4 `!` modifiers and cleanups | 🟡 Partial | Colour `!` modifiers and the stray line break are gone; size `!` modifiers remain at `SwitchWithIcons.tsx:12` |
+| 8.3 thumb slide vs jump | ✅ Done, by decision | `9122465` removed `disableTransitionOnChange`, so the thumb slides. Buttons and inputs with `transition-*` now fade while the page changes at once |
+| 8.4 empty `Props` type | ✅ Done | `UserMenu.tsx:14-18` |
+| 8.4 `@/` alias in `UserMenu` | 🟡 Partial | `UserMenu.tsx:9` still imports `'../ui/button'` |
+| 8.4 account-menu polish | 🟡 Partial | Icon changed to `UserRoundPen`, but `aria-label` is still "Open menu" (`UserMenu.tsx:27`) and the name block is broken (N1). The Profile item was removed, so disabling it no longer applies. `UserMenu` is still in `components/common/` (nit) |
+
+### New issues
+
+**N1. Operator-precedence bug in the name block (High).**
+[`UserMenu.tsx:35-43`](../src/components/common/UserMenu.tsx#L35-L43): `{user.firstName || (user.lastName && <DropdownMenuItem>…)}`.
+
+- If `firstName` is set, it renders as bare, unstyled text inside the `role="group"`, and `lastName` is dropped.
+- The item only appears when `firstName` is empty, and then it's a focusable `menuitem` that does nothing.
+- `Register.tsx:17-20` never collects first or last name, so users created in this UI see no identity at all.
+
+Fix: build the name once and render a non-focusable label:
+
+```tsx
+const fullName =
+    [user.firstName, user.lastName].filter(Boolean).join(' ') ||
+    user.username;
+
+<DropdownMenuLabel>
+    {fullName}
+    <span className="block text-xs font-normal text-muted-foreground">
+        {user.email}
+    </span>
+</DropdownMenuLabel>
+<DropdownMenuSeparator />
+```
+
+**N2. A missing space makes two classes invalid (Medium).**
+[`SwitchWithIcons.tsx:36`](../src/components/common/SwitchWithIcons.tsx#L36) has `…text-primary-foreground/70!group-data-unchecked/switch:text-primary` as one token. It came in with `278a857`.
+
+- Tailwind emits nothing for it, and the compiled CSS in `dist` has no rule for either Sun colour.
+- The Sun then inherits `--foreground`. In dark mode that is near-white on the light-violet `bg-primary` track, about 2.2:1 where the intended style gives about 4.3:1. (These figures are my own OKLCH-to-sRGB estimate from the `index.css` tokens.)
+- In light mode the Sun just loses its violet.
+
+Fix: `group-data-checked/switch:text-primary-foreground/70 group-data-unchecked/switch:text-primary`. Check both themes afterwards.
+
+**N3. Auth pages have no `<main>` and can clip on short screens (Medium).**
+[`Login.tsx:25,27`](../src/pages/Login.tsx#L25) and [`Register.tsx:29,31`](../src/pages/Register.tsx#L29) sit outside `AppLayout`, so they have no `<main>` landmark and only an `<h2>`.
+
+- Both use `h-dvh` with `flex-center`. On a short or zoomed viewport (WCAG 1.4.10 reflow), a card taller than the viewport overflows equally top and bottom, and the top part can't be scrolled to.
+- The wrapper and card classes are duplicated in both files.
+
+Fix: add a small `AuthLayout` (no `Header`) as the child of `PublicRoute` in `Router.tsx`. It renders `<main className="flex-center min-h-dvh px-4 py-8"><Outlet /></main>`. Switch the page headings to `<h1>`. This also makes "no header on auth pages" visible in the route tree.
+
+**N4. No `errorElement` and no `*` route (Medium, predates this branch).**
+[`Router.tsx:9-37`](../src/router/Router.tsx#L9-L37): unknown URLs and render errors fall into React Router's default "Unexpected Application Error!" screen. It isn't themed and prints the stack trace for thrown errors.
+
+Fix: add a root `errorElement` built from theme tokens, and a `*` NotFound route under `ProtectedRoute` > `AppLayout`, so logged-out users are redirected to `/login` and never see the header.
+
+### Checklist
+
+- [ ] Close 3.5 as "won't do, by design": keep `AppLayout` under `ProtectedRoute`, and add a short comment above the auth routes in `Router.tsx`. Mark the old 3.5, 6, 8.6 and 8.7 items about moving `AppLayout`, and steps 5 and 8 in `header-theme-switcher.md`, as obsolete.
+- [ ] Fix the name block in `UserMenu.tsx` (N1).
+- [ ] Add the missing space in the Sun classes in `SwitchWithIcons.tsx:36` and check both themes (N2).
+- [ ] Remove the Logout button and the `useLogoutUser` import from `Home.tsx` (4.3).
+- [ ] Change `import { Button } from '../ui/button'` to `'@/components/ui/button'` in `UserMenu.tsx:9`.
+- [ ] Change the `UserMenu` button's `aria-label` from "Open menu" to something that matches the user icon, such as "Open user menu".
+- [ ] Try removing the remaining size `!` modifiers at `SwitchWithIcons.tsx:12` (4.4).
+- [ ] Add an `AuthLayout` with `<main>` and `min-h-dvh py-8`, and use `<h1>` on the auth pages (N3).
+- [ ] Add a themed `errorElement` and a `*` route (N4).
+- [ ] Optional: decide whether users need a "System" option (4.2).
+- [ ] Optional: move `UserMenu` to `src/layout/`.
+
+Then run `pnpm build` and `pnpm lint`, and repeat the browser checks in section 7. Skip the "Open `/login` while logged out, the switch should be there" check: it no longer applies.

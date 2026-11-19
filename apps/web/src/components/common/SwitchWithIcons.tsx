@@ -33,7 +33,7 @@ export default function SwitchWithIcons({
                     aria-hidden
                     className={cn(
                         iconClassName,
-                        'left-0.5 group-data-[size=lg]/switch:left-1 group-data-checked/switch:text-primary-foreground/70!group-data-unchecked/switch:text-primary dark:group-data-unchecked/switch:text-background'
+                        'left-0.5 group-data-[size=lg]/switch:left-1 group-data-checked/switch:text-primary-foreground/70! group-data-unchecked/switch:text-primary dark:group-data-unchecked/switch:text-background'
                     )}
                 >
                     {startIcon}

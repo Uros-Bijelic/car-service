@@ -4,7 +4,8 @@ import {
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
-    DropdownMenuSeparator
+    DropdownMenuSeparator,
+    DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { UserRoundPen } from 'lucide-react';
@@ -16,7 +17,12 @@ type Props = {
 };
 
 export default function UserMenu({ user }: Props) {
-    const { mutate: logoutUser, isPending } = useLogoutUser();
+            const {               mutate: logoutUser, isPending } = useLogoutUser();
+      
+    
+
+
+
 
     return (
         <DropdownMenu>
@@ -31,14 +37,17 @@ export default function UserMenu({ user }: Props) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                    
+                </DropdownMenuLabel>
                 <DropdownMenuGroup>
                     {user.firstName ||
-                        (user.lastName && (
+                        user.lastName && 
                             <DropdownMenuItem>
                                 {user.firstName ? user.firstName : null}{' '}
                                 {user.lastName ? user.lastName : null}
                             </DropdownMenuItem>
-                        ))}
+                        }
                 </DropdownMenuGroup>
                 {(user.firstName || user.lastName) && <DropdownMenuSeparator />}
                 <DropdownMenuGroup>
