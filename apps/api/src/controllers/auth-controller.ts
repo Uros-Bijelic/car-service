@@ -1,7 +1,7 @@
 import type { Response, Request, RequestHandler } from 'express';
 import type { NewUser } from '@/db/schema.js';
 
-import type { LoginSchema } from '@repo/types/auth';
+import type { LoginSchema } from '@packages/types/auth';
 import { asyncHandler } from '@/middleware/async-handler.js';
 import type { AuthService } from '@/services/auth-service.js';
 import { clearCookieOptions, refreshCookieOptions } from '@/utils/cookie.js';

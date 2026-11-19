@@ -45,11 +45,7 @@
         "skipLibCheck": true,
         "paths": {
             "@/*": ["./src/*"],
-            "@/env*": ["./env*"],
-            "@repo/types": ["../../packages/types/index.ts"],
-            "@repo/types/auth": ["../../packages/types/auth.ts"],
-            "@repo/types/*": ["../../packages/types/*"],
-            "@repo/shared/*": ["../../packages/shared/*"]
+            "@/env*": ["./env*"]
         },
         "typeRoots": ["./src/types", "./node_modules/@types"]
     }

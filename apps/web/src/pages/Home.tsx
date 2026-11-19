@@ -5,7 +5,7 @@ export default function Home() {
     const { mutate: logoutUser, isPending } = useLogoutUser();
 
     return (
-        <section className="p-6">
+        <section className="p-6 w-full">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Home Page</h1>
                 <Button onClick={() => logoutUser()} disabled={isPending}>

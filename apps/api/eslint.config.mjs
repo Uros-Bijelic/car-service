@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
+    { ignores: ['node_modules', 'dist', 'eslint.config.mjs'] },
     eslint.configs.recommended,
     tseslint.configs.recommended,
     prettier,
@@ -26,7 +27,6 @@ export default tseslint.config(
             // no console.log left in code (use warn so it doesn't block)
             'no-console': 'off',
             'no-unused-vars': 'off'
-        },
-        ignores: ['node_modules', 'dist']
+        }
     }
 );
