@@ -1,70 +1,83 @@
-# CLAUDE.md
+<!-- ===== CLAUDE.md =====
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Project guide
 
-## Repository layout
+- `apps/web` owns the UI. 
+- `apps/api` owns server-side behavior and API endpoints.
+- `packages/` contains shared code used by both web and api.
+- Shared Zod schemas and TypeScript types should live in packages.
+- Do not duplicate shared validation schemas or types in apps/web or apps/api.
+- Before proposing a change, trace the current flow and find a similar feature.
+  If an API contract changes, check its callers and the relevant tests.
+- Use the package manager and scripts defined in this repository.
+- Keep each change focused on one behavior that can be checked independently.
+- In learning mode, give me a hint first and wait before writing code.
+- When I request a code review, use `code-reviewer`. Pass the goal, review
+  scope, base ref for a branch review and plan path if I provided one.
+- Keep secrets and production data out of prompts, fixtures and logs.
 
-pnpm workspace monorepo (`pnpm-workspace.yaml`: `apps/*`, `packages/*`). Use pnpm, not npm (the stray `package-lock.json` files in the apps are leftovers).
+## Verified commands
 
-- `apps/api` (package name `backend`) — Express 5 + Drizzle ORM (Postgres) + Redis, TypeScript run via `tsx`
-- `apps/web` (package name `frontend`) — React 19 + Vite + TanStack Query + React Router 7 + Tailwind v4 + shadcn/ui
-- `packages/types` (`@repo/types`) — Zod schemas shared by both apps (e.g. `@repo/types/auth` holds `loginSchema`/`registerSchema`, used for API body validation and frontend forms). Consumed as raw `.ts` source, no build step.
-- `packages/tsconfig.base.json` — base tsconfig extended by the apps.
+- Dev: `pnpm dev`
+- Build: `pnpm build`
+- Lint: `pnpm lint`
+- Typecheck: `pnpm typecheck`
+- Tests: `pnpm test` -->
 
-There is no test suite in either app.
 
-## Commands
+# Project Guide
 
-Run from the app directory (or `pnpm --filter backend <script>` / `pnpm --filter frontend <script>` from the root).
+## Monorepo Structure
 
-API (`apps/api`):
-- `pnpm dev` — `tsx watch --env-file=.env src/app.ts`
-- `pnpm build` — `tsc` (type-check/emit)
-- `pnpm lint` / `pnpm lint:fix` / `pnpm format`
-- `pnpm db:generate` — generate a migration from `src/db/schema.ts` into `drizzle/`
-- `pnpm db:migrate` / `pnpm db:push` / `pnpm db:studio`
+- `apps/web` contains the frontend application.
+- `apps/api` contains the backend Node.js application.
+- `packages/` contains shared code used by frontend and backend.
 
-Note: `start`, `db:seed` and `db:migrate:debug` reference files that don't exist (`dist/index.js`, `src/db/seed.ts`, `scripts/debug-migrate.ts`).
+## Monorepo Architecture
 
-Web (`apps/web`):
-- `pnpm dev` — Vite dev server on `http://localhost:5173` (the only origin allowed by API CORS)
-- `pnpm build` — `tsc -b && vite build`
-- `pnpm lint`
+- This repository uses pnpm workspaces.
+- Workspace packages are defined in `pnpm-workspace.yaml`.
+- Applications are located in `apps/*`.
+- Shared packages are located in `packages/*`.
+- Use `workspace:*` when referencing local workspace packages.
+- Do not duplicate shared functionality between applications.
+- Before creating a new shared package, inspect existing packages.
+- Keep dependencies scoped to the workspace package that needs them.
 
-## Environment
+## Shared Packages
 
-- API env is validated with Zod in `apps/api/env.ts` (outside `src/`, imported as `@/env.js`); the process exits on invalid env. Requires `PORT`, `DATABASE_URL` (`postgresql://`), `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` (≥44 chars), `REDIS_URL` (must be `rediss://` / TLS). Drizzle connects with `ssl: true`.
-- Web needs `VITE_BASE_API_URL` (prefixed to every `apiFetch` URL).
+- Shared Zod schemas should live in `packages/`.
+- Shared TypeScript types should live in `packages/`.
+- Avoid duplicating types and validation schemas across applications.
+- Before creating a new type or schema, check whether an existing shared definition can be reused.
 
-## API architecture
+## Package Manager
 
-Layered: routes → controllers → services → repositories, wired manually in `src/di.ts` (instantiate repository with `db`, inject into service, inject into controller). Add new features by following the same pattern and registering instances in `di.ts`.
+- This project uses pnpm.
+- Always use pnpm for package management.
+- Never use npm or yarn.
+- Prefer running scripts through the root workspace when available.
 
-- Controllers are classes whose handlers are arrow-function properties wrapped in `asyncHandler`, so thrown errors reach the global `errorHandler`.
-- Throw `AppError` subclasses from `src/errors/AppError.ts` (`UnauthorizedError`, `ConflictError`, `ValidationError`, `DatabaseError`, …). `errors/error-handler.ts` also maps Postgres error codes from `DrizzleQueryError` to HTTP statuses; anything else becomes a 500.
-- Request validation: `validateBody(schema)` / `validateParams(schema)` in `middleware/validation.ts` (400 with `errorDetails`). Prefer schemas from `@repo/types` when the frontend also needs them.
-- Route ordering in `src/app.ts` matters: `/api/auth/*` is public, then `app.use(authenticateToken)` guards everything mounted after it, then the 404 handler and `errorHandler`. New protected routers go between `authenticateToken` and the 404 handler. `authenticateToken` sets `req.user` (typed in `src/types/express.d.ts`).
-- Rate limiting (`middleware/rate-limiter.ts`) uses `express-rate-limit` backed by Redis: a general limiter on `/api` and a stricter one on login/register.
+## Development Guidelines
 
-Imports: ESM with `nodenext` resolution — relative and `@/` imports must use the `.js` extension (`@/services/auth-service.js`). tsconfig enables `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, and `verbatimModuleSyntax` (use `import type`).
+- Before implementing a feature, inspect the existing code.
+- Look for similar implementations before creating new ones.
+- Keep changes focused and avoid unrelated refactoring.
+- Follow existing naming conventions and project architecture.
+- Use TypeScript types instead of `any` whenever possible.
 
-### Auth flow
+## Code Review
 
-- Login/register return `{ user, accessToken }` in the body and set an httpOnly `refreshToken` cookie.
-- `POST /api/auth/refresh-token` rotates tokens: the old refresh token is blacklisted in Redis and a new pair is issued.
-- `POST /api/auth/logout` blacklists both refresh and access tokens.
-- Blacklist entries are stored under `REDIS_KEYS.blacklist(hashToken(token))` (`lib/redis-keys.ts`) with TTL equal to the token's expiry; always hash tokens before using them as keys. `authenticateToken` checks the blacklist on every request.
-- More background docs live in `apps/api/docs/`.
+- When I request a code review, use the `code-reviewer` agent.
+- Follow the review instructions defined in `.claude/agents/code-reviewer.md`.
 
-## Web architecture
+## Security
 
-- `@/` aliases `apps/web/src` (resolved by `vite-tsconfig-paths`). React Compiler is enabled via Babel in `vite.config.ts`.
-- `Providers.tsx`: `QueryClientProvider` → `AuthProvider` → `RouterProvider` + sonner `Toaster`.
-- `lib/apiFetch.ts` is the single fetch wrapper: keeps the access token in a module-level variable (not storage), sends `credentials: 'include'`, and on a 401 refreshes once via `/auth/refresh-token`, updates the `authQueryKeys.refresh` query cache, and retries; if refresh fails it clears auth and redirects to `/login`. Errors are thrown as `Error(message)` from the API's `message` field.
-- Auth state: `AuthProvider` runs `useRefetchToken` (a query on the refresh endpoint) on load; the query cache entry `authQueryKeys.refresh` is the source of truth for the current user. Login/register/logout mutations update that cache entry and call `setAccessToken`.
-- Routing (`router/Router.tsx`): `ProtectedRoute` wraps authenticated pages (inside `layout/AppLayout`), `PublicRoute` wraps `/login` and `/register`.
-- Features are grouped under `src/features/<name>/` (api endpoints, schemas, query keys, hooks, providers). shadcn components live in `src/components/ui` (add via the shadcn CLI, config in `components.json`); react-hook-form wrappers in `src/components/RHFComponents`.
+- Never expose secrets, API keys or credentials.
+- Never include production data in test fixtures or logs.
 
-## Style
+## Package Naming
 
-Prettier (root `.prettierrc`): 4-space indent, single quotes, semicolons, no trailing commas, 80 cols.
+- Use `@packages/*` as the namespace for internal workspace packages.
+- Do not use `@repo/*` for internal packages.
+- Keep package names consistent across package.json files and imports.
