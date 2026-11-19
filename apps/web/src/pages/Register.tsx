@@ -4,12 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
 import { useRegisterUser } from '@/features/auth/hooks/use-register-user';
-import {
-    registerSchema,
-    type RegisterSchema
-} from '@packages/types/auth';
+import { registerSchema, type RegisterSchema } from '@packages/types/auth';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-
 
 export default function Register() {
     const methods = useForm<RegisterSchema>({
